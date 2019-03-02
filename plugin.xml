@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <!-- Commands -->
+   <extension point="org.eclipse.ui.commands">
+        <category 
+        name="SGit" 
+        id="org.uqbar.sGit.commands.category"/>
+        
+        <!-- Pull And Push Command -->
+      	<command 
+      	name="Pull And Push" 
+      	categoryId="org.uqbar.sGit.commands.category" 
+      	id="org.uqbar.sGit.commands.pullAndPushCommand"/>
+      	
+      	<!-- Push Command -->
+      	<command 
+      	name="Push" 
+      	categoryId="org.uqbar.sGit.commands.category" 
+      	id="org.uqbar.sGit.commands.pushCommand"/>
+      	
+      	<!-- Pull Command -->
+      	<command 
+      	name="Pull" 
+      	categoryId="org.uqbar.sGit.commands.category" 
+      	id="org.uqbar.sGit.commands.pullCommand"/>
+      	
+      	<!-- Commit Command -->
+      	<command 
+      	name="Pull And Push" 
+      	categoryId="org.uqbar.sGit.commands.category" 
+      	id="org.uqbar.sGit.commands.commitCommand"/>
+      	
+   </extension>
+
+   <!-- Actions -->
+   <extension point="org.eclipse.ui.actionSets">
+   		<actionSet 
+   		id="org.uqbar.sGit.actionSet"
+   		label="SGit Action Set"
+   		visible="true">
+   		
+		<!-- Pull And Push Action -->
+   		<action 
+   		class="org.uqbar.sGit.actions.PullAndPushAction"
+   		id="org.uqbar.sGit.pullAndPushAction"
+   		label="Pull And Push"
+   		menubarPath="project/start"
+   		style="push"/>
+   			
+		<!-- Push Action -->
+   		<action 
+   		class="org.uqbar.sGit.actions.PushAction"
+   		id="org.uqbar.sGit.pushAction"
+   		label="Push"
+   		menubarPath="project/start"
+   		style="push"/>
+   			
+		<!-- Pull Action -->
+   		<action 
+   		class="org.uqbar.sGit.actions.PullAction"
+   		id="org.uqbar.sGit.pullAction"
+   		label="Pull"
+   		menubarPath="project/start"
+   		style="push"/>
+   			
+  		<!-- Commit Action -->
+   		<action 
+   		class="org.uqbar.sGit.actions.CommitAction"
+   		id="org.uqbar.sGit.commitAction"
+   		label="Commit"
+   		menubarPath="project/start"
+   		style="push"/>
+   			
+        </actionSet>
+   </extension>
+   
+   <!-- Handlers -->
+   <extension point="org.eclipse.ui.handlers">
+   	
+   		<!-- Pull and Push Handler -->
+   		<handler 
+   		commandId="org.uqbar.sGit.commands.pullAndPushCommand"
+   		class="org.uqbar.sGit.handlers.PullAndPushHandler"/>
+   		
+   		<!-- Push Handler -->
+   		<handler 
+   		commandId="org.uqbar.sGit.commands.pushCommand"
+   		class="org.uqbar.sGit.handlers.PushHandler"/>
+   		
+   		<!-- Pull Handler -->
+   		<handler 
+   		commandId="org.uqbar.sGit.commands.pullCommand"
+   		class="org.uqbar.sGit.handlers.PullHandler"/>
+   	
+   		<!-- Commit Handler -->
+   		<handler 
+   		commandId="org.uqbar.sGit.commands.commitCommand"
+   		class="org.uqbar.sGit.handlers.CommitHandler"/>
+   		
+   </extension>
+
+   <!-- Wizards -->
+   <extension point="org.eclipse.ui.importWizards">
+      <wizard
+            id="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
+            name="Import a project from any Git repository"
+            class="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
+            category="org.eclipse.egit.ui.internal.clone.gitclonecategory"
+            icon="icons/sample.png">
+         <description>
+         	Import one or more projects from a Git Repository.
+         </description>
+      </wizard>
+   </extension>
+   
+      <!-- Views -->
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="org.uqbar.SGit"
+            name="Git">
+      </category>
+      <view
+            category="org.uqbar.SGit"
+            class="org.uqbar.sGit.views.GitView"
+            icon="icons/sample.png"
+            id="org.uqbar.sGit.views.GitView"
+            inject="true"
+            name="Git">
+      </view>
+   </extension>
+
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   
+</plugin>
