@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.uqbar.sGit.git.GitRepository;
+import org.uqbar.sGit.utils.GitRepository;
 
 public abstract class SGitView extends ViewPart {
 

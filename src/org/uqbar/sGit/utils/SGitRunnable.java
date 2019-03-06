@@ -1,4 +1,4 @@
-package org.uqbar.sGit.git;
+package org.uqbar.sGit.utils;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 

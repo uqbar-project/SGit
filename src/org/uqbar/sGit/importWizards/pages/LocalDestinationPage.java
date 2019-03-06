@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.uqbar.sGit.git.GitRepository;
+import org.uqbar.sGit.utils.GitRepository;
 
 public class LocalDestinationPage extends SGitWizardPage {
 

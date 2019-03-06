@@ -1,4 +1,4 @@
-package org.uqbar.sGit.git;
+package org.uqbar.sGit.utils;
 
 public class GitFile {
 

@@ -1,6 +1,6 @@
-package org.uqbar.sGit.git;
+package org.uqbar.sGit.utils;
 
-import static org.uqbar.sGit.git.GitStatus.*;
+import static org.uqbar.sGit.utils.GitStatus.*;
 
 import java.io.File;
 import java.io.IOException;

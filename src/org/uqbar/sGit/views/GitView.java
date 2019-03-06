@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.uqbar.sGit.git.GitFile;
+import org.uqbar.sGit.utils.GitFile;
 
 public class GitView extends SGitView {
 
