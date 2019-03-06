@@ -18,4 +18,30 @@ public class GitFile {
 		return filePath;
 	}
 
+	public String getStatusImageName() {
+
+		switch (this.status) {
+
+		case ADDED:
+			return "staged_added";
+
+		case CHANGED:
+			return "dirty";
+
+		case REMOVED:
+			return "staged_removed";
+
+		case MISSING:
+			return "untracked";
+
+		case MODIFIED:
+			return "staged";
+
+		case UNTRACKED:
+			return "untracked";
+
+		}
+		return "untracked";
+	}
+
 }

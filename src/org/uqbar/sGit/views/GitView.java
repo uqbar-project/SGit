@@ -4,24 +4,32 @@ import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
 import static org.uqbar.sGit.views.Messages.*;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.uqbar.sGit.utils.GitFile;
 
 public class GitView extends SGitView {
@@ -33,8 +41,8 @@ public class GitView extends SGitView {
 
 	private Label unstagingFilesLabel;
 	private Label stagingFilesLabel;
-	private List unstagedFilesList;
-	private List stagedFilesList;
+	private Table unstagedFiles;
+	private Table stagedFiles;
 	private Text commitMessageTexbox;
 	private Combo authorCombo;
 	private String authorName;
@@ -42,41 +50,55 @@ public class GitView extends SGitView {
 	private String committerName;
 	private String committerEmail;
 
+	private Image getImage(String name) {
+		Bundle bundle = FrameworkUtil.getBundle(getClass());
+		URL url = FileLocator.find(bundle, new Path("icons/" + name + ".png"), null);
+		ImageDescriptor imageDesc = ImageDescriptor.createFromURL(url);
+		Image image = imageDesc.createImage();
+		return image;
+	}
+
+	private void showOnTable(GitFile file, Table table) {
+		TableItem item = new TableItem(table, 0);
+		item.setImage(this.getImage(file.getStatusImageName()));
+		item.setText(file.getFilePath());
+	}
+
 	/**
 	 * add a Git file wrapper to the non staging area.
 	 */
-	private void addUnstagedGitFile(GitFile file) {
-		unstagedFilesList.add(file.getStatus() + " - " + file.getFilePath());
+	private void showAsUnstaged(GitFile file) {
+		this.showOnTable(file, unstagedFiles);
 	}
 
 	/**
 	 * add a Git file wrapper to the staging area.
 	 */
-	private void addStagedGitFile(GitFile file) {
-		stagedFilesList.add(file.getStatus() + " - " + file.getFilePath());
+	private void showAsStaged(GitFile file) {
+		this.showOnTable(file, stagedFiles);
 	}
-	
+
 	/**
 	 * Updates staging state.
 	 */
 	private void updateStagingState() {
-		unstagedFilesList.removeAll();
-		stagedFilesList.removeAll();
-		gitRepository.getUnstagedFiles().stream().forEach(this::addUnstagedGitFile);
-		gitRepository.getStagedFiles().stream().forEach(this::addStagedGitFile);
-		unstagingFilesLabel.setText(UNSTAGED_CHANGES + unstagedFilesList.getItemCount());
-		stagingFilesLabel.setText(STAGED_CHANGES + stagedFilesList.getItemCount());
+		unstagedFiles.removeAll();
+		stagedFiles.removeAll();
+		gitRepository.getUnstagedFiles().stream().forEach(this::showAsUnstaged);
+		gitRepository.getStagedFiles().stream().forEach(this::showAsStaged);
+		unstagingFilesLabel.setText(UNSTAGED_CHANGES + unstagedFiles.getItemCount());
+		stagingFilesLabel.setText(STAGED_CHANGES + stagedFiles.getItemCount());
 	}
-	
+
 	/**
 	 * Updates committer box state.
 	 */
 	private void updateCommitDetailsState() {
-		
+
 		Set<String> authorsName = gitRepository.getAuthors().stream().map(a -> a.getName()).collect(Collectors.toSet());
 		authorCombo.setItems(authorsName.toArray(new String[0]));
 		authorCombo.select(authorCombo.indexOf(gitRepository.getLastAuthor().getName()));
-		
+
 		if (authorCombo.getItemCount() > 0) {
 			PersonIdent author = gitRepository.getAuthors().stream()
 					.filter(a -> a.getName().equals(authorCombo.getText())).findFirst().get();
@@ -94,30 +116,30 @@ public class GitView extends SGitView {
 	 * Perform git add to staging Action.
 	 */
 	private void add(String filePath) {
-		gitRepository.addFileToStaging(filePath.split(" - ")[1]);
-		this.updateStagingState();
+		gitRepository.addFileToStaging(filePath);
+//		this.updateStagingState();
 	}
 
 	/**
 	 * Perform git add all to staging Action.
 	 */
 	private void addAll() {
-		Arrays.asList(unstagedFilesList.getItems()).stream().forEach(this::add);
+		Arrays.asList(unstagedFiles.getItems()).stream().forEach(item -> this.add(item.getText()));
 	}
-	
+
 	/**
 	 * Perform git remove from staging Action.
 	 */
 	private void remove(String filePath) {
-		gitRepository.removeFileFromStaging(filePath.split(" - ")[1]);
-		this.updateStagingState();
+		gitRepository.removeFileFromStaging(filePath);
+//		this.updateStagingState();
 	}
 
 	/**
 	 * Perform git remove all from staging Action.
 	 */
 	private void removeAll() {
-		Arrays.asList(stagedFilesList.getItems()).stream().forEach(this::remove);
+		Arrays.asList(stagedFiles.getItems()).stream().forEach(item -> this.remove(item.getText()));
 	}
 
 	/**
@@ -131,6 +153,7 @@ public class GitView extends SGitView {
 	 */
 	private void commit(String message, String author, String email, String committer, String committerEmail) {
 		gitRepository.commit(message, author, email, committer, committerEmail);
+		this.updateStagingState();
 	}
 
 	/**
@@ -138,16 +161,17 @@ public class GitView extends SGitView {
 	 */
 	private void push() {
 		gitRepository.push();
+		this.updateStagingState();
 	}
-	
+
 	/**
 	 * Perform a Git pull Action.
 	 */
 	private void pull() {
 		gitRepository.pull();
+		this.updateStagingState();
 	}
-	
-	
+
 	public void onViewInit() {
 		final GitView that = this;
 		final SashForm gitStagingSashForm = new SashForm(container, HORIZONTAL);
@@ -172,13 +196,14 @@ public class GitView extends SGitView {
 		unstagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		final ToolItem addItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addItem.setText("+");
+		addItem.setImage(this.getImage("add"));
 		addItem.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (unstagedFilesList.getSelectionIndex() >= 0) {
-					Arrays.asList(unstagedFilesList.getSelection()).stream().forEach(that::add);
+				if (unstagedFiles.getSelectionIndex() >= 0) {
+					Arrays.asList(unstagedFiles.getSelection()).stream().forEach(item -> that.add(item.getText()));
+					that.updateStagingState();
 				}
 			}
 
@@ -190,12 +215,13 @@ public class GitView extends SGitView {
 		});
 
 		final ToolItem addAllItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addAllItem.setText("++");
+		addAllItem.setImage(this.getImage("add_all"));
 		addAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				that.addAll();
+				that.updateStagingState();
 			}
 
 			@Override
@@ -205,8 +231,8 @@ public class GitView extends SGitView {
 
 		});
 
-		unstagedFilesList = new List(unstagingComposite, PUSH | MULTI | BORDER | H_SCROLL | V_SCROLL | WRAP);
-		unstagedFilesList.setLayoutData(new GridData(FILL_BOTH));
+		unstagedFiles = new Table(unstagingComposite, PUSH | MULTI | BORDER | H_SCROLL | V_SCROLL | WRAP);
+		unstagedFiles.setLayoutData(new GridData(FILL_BOTH));
 
 		Composite stagingComposite = new Composite(addRemoveSashForm, NULL);
 		final GridLayout stagingCompositeLayout = new GridLayout();
@@ -227,13 +253,14 @@ public class GitView extends SGitView {
 		stagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		ToolItem removeItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeItem.setText("-");
+		removeItem.setImage(this.getImage("unstage"));
 		removeItem.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (stagedFilesList.getSelectionIndex() >= 0) {
-					Arrays.asList(stagedFilesList.getSelection()).stream().forEach(that::remove);
+				if (stagedFiles.getSelectionIndex() >= 0) {
+					Arrays.asList(stagedFiles.getSelection()).stream().forEach(item -> that.remove(item.getText()));
+					that.updateStagingState();
 				}
 			}
 
@@ -245,12 +272,13 @@ public class GitView extends SGitView {
 		});
 
 		ToolItem removeAllItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeAllItem.setText("--");
+		removeAllItem.setImage(this.getImage("unstage_all"));
 		removeAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				that.removeAll();
+				that.updateStagingState();
 			}
 
 			@Override
@@ -260,33 +288,32 @@ public class GitView extends SGitView {
 
 		});
 
-		stagedFilesList = new List(stagingComposite, PUSH | MULTI | BORDER | H_SCROLL | V_SCROLL | WRAP);
-		stagedFilesList.setLayoutData(new GridData(FILL_BOTH));
+		stagedFiles = new Table(stagingComposite, PUSH | MULTI | BORDER | H_SCROLL | V_SCROLL | WRAP);
+		stagedFiles.setLayoutData(new GridData(FILL_BOTH));
 
-		
 		// Committer Section.
-		
+
 		final Composite commiterContainer = new Composite(gitStagingSashForm, BORDER | VERTICAL);
 		final GridLayout commiterlayout = new GridLayout();
 		commiterContainer.setLayout(commiterlayout);
-		
+
 		final Label commitLabel = new Label(commiterContainer, NULL);
 		commitLabel.setText(COMMIT_MESSAGE);
 		commitLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
-		
+
 		commitMessageTexbox = new Text(commiterContainer, BORDER | H_SCROLL | V_SCROLL | WRAP);
 		commitMessageTexbox.setLayoutData(new GridData(FILL_BOTH));
-		
+
 		final Label authorLabel = new Label(commiterContainer, NULL);
 		authorLabel.setText(AUTHOR);
 		authorLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
-		
+
 		authorCombo = new Combo(commiterContainer, DROP_DOWN);
 		final GridData authorComboComboGridData = new GridData(FILL_HORIZONTAL);
 		authorComboComboGridData.horizontalSpan = 2;
 		authorCombo.setLayoutData(authorComboComboGridData);
-		authorCombo.setItems(new String[] { });
-		
+		authorCombo.setItems(new String[] {});
+
 		Composite commiterButtonsComposite = new Composite(commiterContainer, RIGHT_TO_LEFT);
 		final GridLayout commiterButtonsCompositeLayout = new GridLayout();
 		commiterButtonsCompositeLayout.numColumns = 4;
@@ -296,6 +323,7 @@ public class GitView extends SGitView {
 		final Button commitAndPushButton = new Button(commiterButtonsComposite, PUSH);
 		commitAndPushButton.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		commitAndPushButton.setText(COMMIT_AND_PUSH_ACTION);
+		commitAndPushButton.setImage(this.getImage("commitandpush"));
 		commitAndPushButton.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -312,10 +340,11 @@ public class GitView extends SGitView {
 			}
 
 		});
-		
+
 		final Button push = new Button(commiterButtonsComposite, PUSH);
 		push.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		push.setText(PUSH_ACTION);
+		push.setImage(this.getImage("push"));
 		push.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -331,10 +360,11 @@ public class GitView extends SGitView {
 			}
 
 		});
-		
+
 		final Button pull = new Button(commiterButtonsComposite, PUSH);
 		pull.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		pull.setText(PULL_ACTION);
+		pull.setImage(this.getImage("pull"));
 		pull.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -350,9 +380,10 @@ public class GitView extends SGitView {
 			}
 
 		});
-		
+
 		final Button commit = new Button(commiterButtonsComposite, PUSH);
 		commit.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
+		commit.setImage(this.getImage("commit"));
 		commit.setText(COMMIT_ACTION);
 		commit.addSelectionListener(new SelectionListener() {
 
@@ -370,7 +401,6 @@ public class GitView extends SGitView {
 
 		});
 
-		
 	}
 
 	@Override
@@ -385,6 +415,5 @@ public class GitView extends SGitView {
 		this.updateStagingState();
 		this.updateCommitDetailsState();
 	}
-
 
 }

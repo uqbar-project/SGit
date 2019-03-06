@@ -8,7 +8,7 @@
             name="Importar proyecto Git"
             class="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
             category="org.eclipse.egit.ui.internal.clone.gitclonecategory"
-            icon="icons/sample.png">
+            icon="icons/repo_rep.png">
          <description>
          	Import one or more projects from a Git Repository.
          </description>
@@ -24,7 +24,7 @@
       <view
             category="org.uqbar.SGit"
             class="org.uqbar.sGit.views.GitView"
-            icon="icons/sample.png"
+            icon="icons/staging.png"
             id="org.uqbar.sGit.views.GitView"
             inject="true"
             name="Git">
