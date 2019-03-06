@@ -33,7 +33,7 @@ import org.uqbar.sGit.utils.GitRepository;
 public class LocalDestinationPage extends SGitWizardPage {
 
 	private GitRepository gitRepository;
-	private String repositoryName = "project";
+	private String repositoryName = "project"; //$NON-NLS-1$
 	private Composite destinationComposite;
 	private Composite branchesComposite;
 	private Button defaultDirectoryCheckbox;
@@ -42,7 +42,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 	private Combo branches;
 	
 	public LocalDestinationPage(String pageName) {
-		super(pageName, "Configure the local storage for project");
+		super(pageName, Messages.LOCAL_DESTINATION_PAGE_TITLE);
 	}
 
 	public List<String> getBranchesItems() {
@@ -94,7 +94,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 	}
 
 	private void updateDescriptionWithReposityName() {
-		this.setDescription("Configure the local storage for " + this.getRepositoryName());
+		this.setDescription(Messages.LOCAL_DESTINATION_PAGE_TITLE + this.getRepositoryName());
 	}
 
 	private void fetchBranchesFromRemote() {
@@ -140,20 +140,20 @@ public class LocalDestinationPage extends SGitWizardPage {
 		final GridData destinationGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		destinationGridData.horizontalSpan = 3;
 		destinationLabel.setLayoutData(destinationGridData);
-		destinationLabel.setText("Destination");
+		destinationLabel.setText(Messages.DESTINATION);
 
 		defaultDirectoryCheckbox = new Button(destinationComposite, CHECK);
 		final GridData defaultDirectoryCheckboxGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		defaultDirectoryCheckboxGridData.horizontalSpan = 3;
 		defaultDirectoryCheckbox.setLayoutData(defaultDirectoryCheckboxGridData);
-		defaultDirectoryCheckbox.setText("Use default location");
+		defaultDirectoryCheckbox.setText(Messages.USE_DEFAULT_LOCATION);
 		defaultDirectoryCheckbox.setSelection(true);
 
 		final Label directoryLabel = new Label(destinationComposite, PUSH);
 		final GridData directoryGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		directoryGridData.horizontalSpan = 1;
 		directoryLabel.setLayoutData(directoryGridData);
-		directoryLabel.setText("Directory: ");
+		directoryLabel.setText(Messages.DIRECTORY);
 
 		directory = new Text(destinationComposite, BORDER | SINGLE);
 		directory.setLayoutData(new GridData(FILL_HORIZONTAL));
@@ -164,7 +164,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 		final GridData browseGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		browseGridData.horizontalSpan = 1;
 		browse.setLayoutData(browseGridData);
-		browse.setText("Browse...");
+		browse.setText(Messages.BROWSE);
 
 		defaultDirectoryCheckbox.addSelectionListener(new SelectionListener() {
 
@@ -221,13 +221,13 @@ public class LocalDestinationPage extends SGitWizardPage {
 		final GridData branchesGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		branchesGridData.horizontalSpan = 3;
 		branchesLabel.setLayoutData(branchesGridData);
-		branchesLabel.setText("Branches");
+		branchesLabel.setText(Messages.BRANCHES);
 
 		final Label initialBranchLabel = new Label(branchesComposite, PUSH);
 		final GridData initialBranchGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		initialBranchGridData.horizontalSpan = 1;
 		initialBranchLabel.setLayoutData(initialBranchGridData);
-		initialBranchLabel.setText("Initial Branch: ");
+		initialBranchLabel.setText(Messages.INITIAL_BRANCH);
 
 		branches = new Combo(branchesComposite, DROP_DOWN | READ_ONLY);
 		final GridData branchsGridData = new GridData(FILL_HORIZONTAL);
@@ -242,16 +242,16 @@ public class LocalDestinationPage extends SGitWizardPage {
 	@Override
 	protected void generateMessageErrors() {
 		if (!(this.directoryHasAValidPath())) {
-			this.addMessageError("Please, enter a valid directory for " + this.getRepositoryName());
+			this.addMessageError(Messages.ENTER_VALID_DIRECTORY + this.getRepositoryName());
 		}
 	}
 	
 	private void setCrendetialsOnSecureStore(String user, String password) {
 		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-		ISecurePreferences node = preferences.node("credentials");
+		ISecurePreferences node = preferences.node("credentials"); //$NON-NLS-1$
 		try {
-			node.put("user", user, true);
-			node.put("password", password, true);
+			node.put("user", user, true); //$NON-NLS-1$
+			node.put("password", password, true); //$NON-NLS-1$
 		}
 
 		catch (StorageException e1) {
@@ -287,7 +287,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 	private void importProject() {
 		try {
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			final Path path = new Path(this.getDirectory() + "/" + repositoryName + "/.project");
+			final Path path = new Path(this.getDirectory() + "/" + repositoryName + "/.project"); //$NON-NLS-1$ //$NON-NLS-2$
 			final IProjectDescription description = workspace.loadProjectDescription(path);
 			final IProject project = workspace.getRoot().getProject(description.getName());
 			final IProgressMonitor monitor = new NullProgressMonitor();

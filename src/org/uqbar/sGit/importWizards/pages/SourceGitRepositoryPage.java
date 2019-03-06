@@ -20,7 +20,7 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 	private Button secureCheckbox;
 
 	public SourceGitRepositoryPage(String pageName) {
-		super(pageName, "Enter the location of the source repository.");
+		super(pageName, Messages.SOURCE_TITLE);
 	}
 
 	public String getUri() {
@@ -44,7 +44,7 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 	}
 
 	public Boolean hasValidGitURIFormat(String path) {
-		return path.startsWith("https://") && path.endsWith(".git");
+		return path.startsWith("https://") && path.endsWith(".git"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	private void createLocationComposite(Composite parent) {
@@ -58,17 +58,17 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 		final GridData locationGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		locationGridData.horizontalSpan = 2;
 		locationLabel.setLayoutData(locationGridData);
-		locationLabel.setText("Location");
+		locationLabel.setText(Messages.LOCATION);
 
 		final Label uriLabel = new Label(container, PUSH);
 		final GridData uriGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		uriGridData.horizontalSpan = 1;
 		uriLabel.setLayoutData(uriGridData);
-		uriLabel.setText("URI: ");
+		uriLabel.setText("URI: "); //$NON-NLS-1$
 
 		uri = new Text(container, BORDER | SINGLE);
 		uri.setLayoutData(new GridData(FILL_HORIZONTAL));
-		uri.setText("");
+		uri.setText(""); //$NON-NLS-1$
 		uri.addModifyListener(this);
 
 		container.pack();
@@ -86,35 +86,35 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 		final GridData authenticationGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		authenticationGridData.horizontalSpan = 2;
 		authenticationLabel.setLayoutData(authenticationGridData);
-		authenticationLabel.setText("Authentication");
+		authenticationLabel.setText(Messages.AUTHENTICATION);
 
 		final Label usernameLabel = new Label(container, PUSH);
 		final GridData usernameGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		usernameGridData.horizontalSpan = 1;
 		usernameLabel.setLayoutData(usernameGridData);
-		usernameLabel.setText("User: ");
+		usernameLabel.setText(Messages.USER);
 
 		user = new Text(container, BORDER | SINGLE);
 		user.setLayoutData(new GridData(FILL_HORIZONTAL));
-		user.setText("");
+		user.setText(""); //$NON-NLS-1$
 		user.addModifyListener(this);
 
 		final Label passwordLabel = new Label(container, PUSH);
 		final GridData passwordGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		passwordGridData.horizontalSpan = 1;
 		passwordLabel.setLayoutData(passwordGridData);
-		passwordLabel.setText("Password: ");
+		passwordLabel.setText(Messages.PASSWORD);
 
 		password = new Text(container, BORDER | SINGLE | PASSWORD);
 		password.setLayoutData(new GridData(FILL_HORIZONTAL));
-		password.setText("");
+		password.setText(""); //$NON-NLS-1$
 		password.addModifyListener(this);
 
 		secureCheckbox = new Button(container, CHECK);
 		final GridData secureCheckboxGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		secureCheckboxGridData.horizontalSpan = 2;
 		secureCheckbox.setLayoutData(secureCheckboxGridData);
-		secureCheckbox.setText("Store in Secure Store");
+		secureCheckbox.setText(Messages.STORE_IN_SECURE_STORE);
 		secureCheckbox.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -135,19 +135,19 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 	@Override
 	protected void generateMessageErrors() {
 		if (!this.getUri().isEmpty() && !this.hasValidGitURIFormat(this.getUri())) {
-			this.addMessageError("Please, enter a valid Git repository URI.");
+			this.addMessageError(Messages.ERROR_ENTER_VALID_GIT_URI);
 		}
 
 		if (!this.getUsername().isEmpty() && this.getPassword().isEmpty()) {
-			this.addMessageError("Please, enter a password for Git repository authentication.");
+			this.addMessageError(Messages.ERROR_ENTER_PASSWORD);
 		}
 
 		if (this.getUsername().isEmpty() && !this.getPassword().isEmpty()) {
-			this.addMessageError("Please, enter a username for Git repository authentication.");
+			this.addMessageError(Messages.ERROR_ENTER_USERNAME);
 		}
 
 		if (this.isSecureStoreEnable() && !(!this.getUsername().isEmpty() || !this.getPassword().isEmpty())) {
-			this.addMessageError("Please, enter username and password for secure store Git repository authentication.");
+			this.addMessageError(Messages.ERROR_ENTER_USERNAME_AND_PASSWORD);
 		}
 	}
 

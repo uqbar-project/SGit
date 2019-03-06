@@ -2,10 +2,10 @@ package org.uqbar.sGit.views;
 
 import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
+import static org.uqbar.sGit.views.Messages.*;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.eclipse.jgit.lib.PersonIdent;
@@ -29,7 +29,7 @@ public class GitView extends SGitView {
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
-	public static final String ID = "org.uqbar.sGit.views.GitView";
+	public static final String ID = "org.uqbar.sGit.views.GitView"; //$NON-NLS-1$
 
 	private Label unstagingFilesLabel;
 	private Label stagingFilesLabel;
@@ -37,7 +37,6 @@ public class GitView extends SGitView {
 	private List stagedFilesList;
 	private Text commitMessageTexbox;
 	private Combo authorCombo;
-	private Combo originCombo;
 	private String authorName;
 	private String authorEmail;
 	private String committerName;
@@ -65,8 +64,8 @@ public class GitView extends SGitView {
 		stagedFilesList.removeAll();
 		gitRepository.getUnstagedFiles().stream().forEach(this::addUnstagedGitFile);
 		gitRepository.getStagedFiles().stream().forEach(this::addStagedGitFile);
-		unstagingFilesLabel.setText("Unstaged changes: " + unstagedFilesList.getItemCount());
-		stagingFilesLabel.setText("Staged changes: " + stagedFilesList.getItemCount());
+		unstagingFilesLabel.setText(UNSTAGED_CHANGES + unstagedFilesList.getItemCount());
+		stagingFilesLabel.setText(STAGED_CHANGES + stagedFilesList.getItemCount());
 	}
 	
 	/**
@@ -77,9 +76,6 @@ public class GitView extends SGitView {
 		Set<String> authorsName = gitRepository.getAuthors().stream().map(a -> a.getName()).collect(Collectors.toSet());
 		authorCombo.setItems(authorsName.toArray(new String[0]));
 		authorCombo.select(authorCombo.indexOf(gitRepository.getLastAuthor().getName()));
-		
-		originCombo.setItems(new String[] {gitRepository.getCurrentBranch()});
-		originCombo.select(0);
 		
 		if (authorCombo.getItemCount() > 0) {
 			PersonIdent author = gitRepository.getAuthors().stream()
@@ -170,7 +166,7 @@ public class GitView extends SGitView {
 
 		unstagingFilesLabel = new Label(unstagingToolbarComposite, PUSH);
 		unstagingFilesLabel.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		unstagingFilesLabel.setText("Unstaged changes: " + 0);
+		unstagingFilesLabel.setText(UNSTAGED_CHANGES + 0);
 
 		final ToolBar unstagingActionToolBar = new ToolBar(unstagingToolbarComposite, BORDER);
 		unstagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
@@ -225,7 +221,7 @@ public class GitView extends SGitView {
 
 		stagingFilesLabel = new Label(stagingToolbarComposite, PUSH);
 		stagingFilesLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
-		stagingFilesLabel.setText("Staged changes: " + 0);
+		stagingFilesLabel.setText(STAGED_CHANGES + 0);
 
 		ToolBar stagingActionToolBar = new ToolBar(stagingToolbarComposite, BORDER);
 		stagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
@@ -274,25 +270,15 @@ public class GitView extends SGitView {
 		final GridLayout commiterlayout = new GridLayout();
 		commiterContainer.setLayout(commiterlayout);
 		
-		final Label originLabel = new Label(commiterContainer, PUSH);
-		final GridData originLabelGridData = new GridData(HORIZONTAL_ALIGN_FILL);
-		originLabel.setLayoutData(originLabelGridData);
-		originLabel.setText("Origin: ");
-		
-		originCombo = new Combo(commiterContainer, DROP_DOWN);
-		final GridData originsGridData = new GridData(FILL_HORIZONTAL);
-		originCombo.setLayoutData(originsGridData);
-		originCombo.setItems(new String[] { });
-
 		final Label commitLabel = new Label(commiterContainer, NULL);
-		commitLabel.setText("Commit Message:");
+		commitLabel.setText(COMMIT_MESSAGE);
 		commitLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
 		
 		commitMessageTexbox = new Text(commiterContainer, BORDER | H_SCROLL | V_SCROLL | WRAP);
 		commitMessageTexbox.setLayoutData(new GridData(FILL_BOTH));
 		
 		final Label authorLabel = new Label(commiterContainer, NULL);
-		authorLabel.setText("Author: ");
+		authorLabel.setText(AUTHOR);
 		authorLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
 		
 		authorCombo = new Combo(commiterContainer, DROP_DOWN);
@@ -309,7 +295,7 @@ public class GitView extends SGitView {
 
 		final Button commitAndPushButton = new Button(commiterButtonsComposite, PUSH);
 		commitAndPushButton.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		commitAndPushButton.setText("Commit and Push");
+		commitAndPushButton.setText(COMMIT_AND_PUSH_ACTION);
 		commitAndPushButton.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -329,7 +315,7 @@ public class GitView extends SGitView {
 		
 		final Button push = new Button(commiterButtonsComposite, PUSH);
 		push.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		push.setText("Push");
+		push.setText(PUSH_ACTION);
 		push.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -348,7 +334,7 @@ public class GitView extends SGitView {
 		
 		final Button pull = new Button(commiterButtonsComposite, PUSH);
 		pull.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		pull.setText("Pull");
+		pull.setText(PULL_ACTION);
 		pull.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -367,7 +353,7 @@ public class GitView extends SGitView {
 		
 		final Button commit = new Button(commiterButtonsComposite, PUSH);
 		commit.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		commit.setText("Commit");
+		commit.setText(COMMIT_ACTION);
 		commit.addSelectionListener(new SelectionListener() {
 
 			@Override
