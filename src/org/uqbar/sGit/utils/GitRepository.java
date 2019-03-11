@@ -123,11 +123,12 @@ public class GitRepository {
 	
 	public Set<PersonIdent> getAuthors() {
 		Repository repository = git.getRepository();
-		String treeName = "refs/heads/master"; // tag or branch
+		String treeName = null;
 		Iterable<RevCommit> commits = null;
 		HashSet<PersonIdent> authors = new HashSet<PersonIdent>();
 		
 		try {
+			treeName = repository.getFullBranch();
 			commits = git.log().add(repository.resolve(treeName)).call();
 			for (RevCommit commit : commits) {
 				authors.add(commit.getAuthorIdent());

@@ -65,6 +65,7 @@ public abstract class SGitView extends ViewPart {
 								ISecurePreferences node = preferences.node("credentials");
 								String user = "";
 								String password = "";
+								
 								try {
 									user = node.get("user", "n/a");
 									password = node.get("password", "n/a");
@@ -73,11 +74,12 @@ public abstract class SGitView extends ViewPart {
 									
 								}
 								
+								
 								if (user != "n/a" && password != "n/a") {
-									gitRepository = new GitRepository(workspacePath + "/" + project.getName(), user, password);
+									gitRepository = new GitRepository(workspacePath + "/git/" + project.getName(), user, password);
 								}
 								else {
-									gitRepository = new GitRepository(workspacePath + "/" + project.getName());
+									gitRepository = new GitRepository(workspacePath + "/git/" + project.getName());
 								}
 								that.onProjectReferenceUpdate();
 							}
