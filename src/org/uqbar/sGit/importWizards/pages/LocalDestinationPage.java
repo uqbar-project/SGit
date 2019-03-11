@@ -281,13 +281,13 @@ public class LocalDestinationPage extends SGitWizardPage {
 	}
 
 	private void cloneRepository() {
-		gitRepository.cloneRepository(this.getDirectory(), this.getUri(), this.getSelectedBranchName());
+		gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName());
 	}
 
 	private void importProject() {
 		try {
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			final Path path = new Path(this.getDirectory() + "/" + repositoryName + "/.project"); //$NON-NLS-1$ //$NON-NLS-2$
+			final Path path = new Path(this.getDirectory() + "/git/" + repositoryName + "/.project"); //$NON-NLS-1$ //$NON-NLS-2$
 			final IProjectDescription description = workspace.loadProjectDescription(path);
 			final IProject project = workspace.getRoot().getProject(description.getName());
 			final IProgressMonitor monitor = new NullProgressMonitor();
