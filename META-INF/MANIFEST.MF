@@ -14,3 +14,10 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: org.uqbar.SGit
 Bundle-ActivationPolicy: lazy
+Export-Package: org.uqbar.sGit,
+ org.uqbar.sGit.importWizards,
+ org.uqbar.sGit.importWizards.pages,
+ org.uqbar.sGit.model.file,
+ org.uqbar.sGit.model.repository,
+ org.uqbar.sGit.model.repository.credentials,
+ org.uqbar.sGit.views
