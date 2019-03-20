@@ -32,27 +32,30 @@ public class SecureStoredCredentialsManager {
 			node.put("password", password, true);
 		}
 
-		catch (StorageException e1) {
-			// TODO: Needs a Validation.
-			e1.printStackTrace();
+		catch (StorageException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
 	public GitCredentials retrieveCrendentials() {
-		String username = "";
-		String password = "";
-
 		try {
-			username = node.get("user", "");
-			password = node.get("password", "");
+			String username = node.get("user", "");
+			String password = node.get("password", "");
+
+			if (username == "" && password == "") {
+				return GitCredentials.NO_CREDENTIALS;
+			}
+
+			else {
+				return new GitCredentials(username, password);
+			}
+
 		}
 
 		catch (StorageException e) {
-			// TODO: Needs a Validation.
-			e.printStackTrace();
+			return GitCredentials.NO_CREDENTIALS;
 		}
-
-		return new GitCredentials(username, password);
 	}
 
 }

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
@@ -49,6 +50,20 @@ public class GitView extends SGitView {
 	private String authorEmail;
 	private String committerName;
 	private String committerEmail;
+	
+	private void validateErrorMessage(String message) {
+		if (message.contains("not authorized")) {
+			this.showErrorDialog("Nombre de usuario y/o contraseña invalidas, acceso al repositorio remoto no autorizado.");
+		}
+
+		else if (message.contains("cannot open git-receive-pack")) {
+			this.showErrorDialog("No se pudo establecer la conexión con el repositorio remoto, revise si su conexión a internet esta habilitada.");
+		}
+
+		else {
+			this.showErrorDialog(message);
+		}
+	}
 
 	private Image getImage(String name) {
 		Bundle bundle = FrameworkUtil.getBundle(getClass());
@@ -100,8 +115,7 @@ public class GitView extends SGitView {
 		authorCombo.select(authorCombo.indexOf(gitRepository.getLastAuthor().getName()));
 
 		if (authorCombo.getItemCount() > 0) {
-			PersonIdent author = gitRepository.getAuthors().stream()
-					.filter(a -> a.getName().equals(authorCombo.getText())).findFirst().get();
+			PersonIdent author = gitRepository.getAuthors().stream().filter(a -> a.getName().equals(authorCombo.getText())).findFirst().get();
 
 			authorName = author.getName();
 			authorEmail = author.getEmailAddress();
@@ -116,7 +130,13 @@ public class GitView extends SGitView {
 	 * Perform git add to staging Action.
 	 */
 	private void add(String filePath) {
-		gitRepository.addFileToStaging(filePath);
+		try {
+			gitRepository.addFileToStaging(filePath);
+		} 
+		
+		catch (GitAPIException e) {
+			this.validateErrorMessage(e.getMessage());
+		}
 	}
 
 	/**
@@ -130,7 +150,13 @@ public class GitView extends SGitView {
 	 * Perform git remove from staging Action.
 	 */
 	private void remove(String filePath) {
-		gitRepository.removeFileFromStaging(filePath);
+		try {
+			gitRepository.removeFileFromStaging(filePath);
+		} 
+		
+		catch (GitAPIException e) {
+			this.validateErrorMessage(e.getMessage());
+		}
 	}
 
 	/**
@@ -143,31 +169,49 @@ public class GitView extends SGitView {
 	/**
 	 * Perform a Git commit Action.
 	 * 
-	 * @param message: The committer message.
-	 * @param author: The committer author.
-	 * @param email: the committer.
-	 * @param committer.
-	 * @param committerEmail.
+	 * @param message: The commit message.
+	 * @param author: The author name.
+	 * @param email: the author email.
+	 * @param committer name.
+	 * @param committerEmail the committer email.
 	 */
 	private void commit(String message, String author, String email, String committer, String committerEmail) {
-		gitRepository.commit(message, author, email, committer, committerEmail);
-		this.updateStagingState();
+		try {
+			gitRepository.commit(message, author, email, committer, committerEmail);
+			this.updateStagingState();
+		} 
+		
+		catch (GitAPIException e) {
+			this.validateErrorMessage(e.getMessage());
+		}
 	}
-
+	
 	/**
 	 * Perform a Git push Action.
 	 */
 	private void push() {
-		gitRepository.push();
-		this.updateStagingState();
+		try {
+			gitRepository.push();
+			this.updateStagingState();
+		}
+
+		catch (GitAPIException e) {
+			this.validateErrorMessage(e.getMessage());
+		}
 	}
 
 	/**
 	 * Perform a Git pull Action.
 	 */
 	private void pull() {
-		gitRepository.pull();
-		this.updateStagingState();
+		try {
+			gitRepository.pull();
+			this.updateStagingState();
+		} 
+		
+		catch (GitAPIException e) {
+			this.validateErrorMessage(e.getMessage());
+		}
 	}
 
 	public void onViewInit() {

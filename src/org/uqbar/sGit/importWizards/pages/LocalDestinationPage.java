@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -270,7 +271,14 @@ public class LocalDestinationPage extends SGitWizardPage {
 	}
 
 	private void cloneRepository() {
-		gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName());
+			try {
+				gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName());
+			} 
+			
+			catch (GitAPIException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	private void importProject() {

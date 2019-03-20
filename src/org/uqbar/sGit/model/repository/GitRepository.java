@@ -12,10 +12,24 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.AbortedByHookException;
+import org.eclipse.jgit.api.errors.CanceledException;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
+import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
+import org.eclipse.jgit.api.errors.DetachedHeadException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidConfigurationException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.NoFilepatternException;
+import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.api.errors.UnmergedPathsException;
+import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.Constants;
@@ -73,17 +87,6 @@ public class GitRepository {
 	
 	public GitRepository(String username, String password) {
 		this(new GitCredentials(username, password));
-	}
-	
-	private void runSGitAction(SGitRunnable action) {
-		try {
-			action.run();
-		}
-
-		catch (Exception e) {
-			// TODO: Needs a Validation.
-			e.printStackTrace();
-		}
 	}
 	
 	/**
@@ -245,9 +248,10 @@ public class GitRepository {
 	 * Performs the GIT add operation.
 	 * 
 	 * @param filePath the path of the file to be added from index.
+	 * @throws GitAPIException 
+	 * @throws NoFilepatternException 
 	 */
-	public void addFileToStaging(String filePath) {
-		this.runSGitAction(() -> {
+	public void addFileToStaging(String filePath) throws NoFilepatternException, GitAPIException {
 			switch (this.getUnstagedFile(filePath).getStatus()) {
 
 			case MISSING:
@@ -263,21 +267,20 @@ public class GitRepository {
 				.call();
 				break;
 			}
-		});
 	}
 
 	/**
 	 * Performs the GIT reset operation.
 	 * 
 	 * @param filePath the path of the file to be removed from index.
+	 * @throws GitAPIException 
+	 * @throws CheckoutConflictException 
 	 */
-	public void removeFileFromStaging(String filePath) {
-		this.runSGitAction(() -> {
+	public void removeFileFromStaging(String filePath) throws CheckoutConflictException, GitAPIException {
 			git.reset()
 			.setRef(Constants.HEAD)
 			.addPath(this.getStagedFile(filePath).getFilePath())
 			.call();
-		});
 	}
 	
 	/**
@@ -302,37 +305,60 @@ public class GitRepository {
 
 	/**
 	 * Performs the GIT commit operation.
+	 * @throws GitAPIException 
+	 * @throws AbortedByHookException 
+	 * @throws WrongRepositoryStateException 
+	 * @throws ConcurrentRefUpdateException 
+	 * @throws UnmergedPathsException 
+	 * @throws NoMessageException 
+	 * @throws NoHeadException 
 	 */
-	public void commit(String message, String author, String authorEmail, String committer, String committerEmail) {
-		this.runSGitAction(() -> {
+	public void commit(String message, String author, String authorEmail, String committer, String committerEmail) throws NoHeadException, NoMessageException, UnmergedPathsException, ConcurrentRefUpdateException, WrongRepositoryStateException, AbortedByHookException, GitAPIException {
 			git.commit()
 			.setMessage(message)
 			.setAuthor(author, authorEmail)
 			.setCommitter(committer, committerEmail)
 			.call();
-		});
 	}
 
 	/**
 	 * Performs the GIT push operation.
+	 * @throws GitAPIException 
+	 * @throws TransportException 
+	 * @throws InvalidRemoteException 
 	 */
-	public void push() {
-		this.runSGitAction(() -> {
-			git.push()
-			.setCredentialsProvider(this.getCredentialProvider())
-			.call();
-		});
+	public void push() throws InvalidRemoteException, TransportException, GitAPIException {
+		PushCommand push = git.push();
+		
+		if (!this.credentials.isEmpty()) {
+			push.setCredentialsProvider(this.getCredentialProvider());
+
+		} 
+		
+		else {
+
+		}
+		
+		push.call();
 	}
-	
+
 	/**
 	 * Performs the GIT pull operation.
+	 * @throws GitAPIException 
+	 * @throws TransportException 
+	 * @throws NoHeadException 
+	 * @throws RefNotAdvertisedException 
+	 * @throws RefNotFoundException 
+	 * @throws CanceledException 
+	 * @throws InvalidRemoteException 
+	 * @throws DetachedHeadException 
+	 * @throws InvalidConfigurationException 
+	 * @throws WrongRepositoryStateException 
 	 */
-	public void pull() {
-		this.runSGitAction(() -> {
+	public void pull() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException {
 			git.pull()
 			.setCredentialsProvider(this.getCredentialProvider())
 			.call();
-		});
 	}
 	
 	/**
@@ -340,15 +366,23 @@ public class GitRepository {
 	 * 
 	 * @param remote the remote name of project repository.
 	 * @param branch the branch name of repository to clone.
+	 * @throws GitAPIException 
+	 * @throws TransportException 
+	 * @throws NoHeadException 
+	 * @throws RefNotAdvertisedException 
+	 * @throws RefNotFoundException 
+	 * @throws CanceledException 
+	 * @throws InvalidRemoteException 
+	 * @throws DetachedHeadException 
+	 * @throws InvalidConfigurationException 
+	 * @throws WrongRepositoryStateException 
 	 */
-	public void pull(String remote, String branch) {
-		this.runSGitAction(() -> {
+	public void pull(String remote, String branch) throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException {
 			git.pull()
 			.setRemote(remote)
 			.setRemoteBranchName(branch)
 			.setCredentialsProvider(this.getCredentialProvider())
 			.call();
-		});
 	}
 	
 	/**
@@ -357,9 +391,11 @@ public class GitRepository {
 	 * @param directory the directory to clone the remote repository.
 	 * @param remote the remote name of project repository.
 	 * @param branch the branch name of repository to clone.
+	 * @throws GitAPIException 
+	 * @throws TransportException 
+	 * @throws InvalidRemoteException 
 	 */
-	public void cloneRepository(String directory, String remote, String branch) {
-		this.runSGitAction(() -> {
+	public void cloneRepository(String directory, String remote, String branch) throws InvalidRemoteException, TransportException, GitAPIException {
 		Git.cloneRepository()
 			.setDirectory(new File(directory + "/" + this.getRepositoryName(remote)))
 			.setURI(remote)
@@ -368,7 +404,6 @@ public class GitRepository {
 			.setCloneAllBranches(true)
 			.setCloneSubmodules(true)
 			.call();
-		});
 	}
 	
 	/**

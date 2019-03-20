@@ -22,12 +22,10 @@ public class UISelectionListener implements ISelectionListener {
 		IProject project;
 
 		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
-
-			final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-			final Object element = structuredSelection.getFirstElement();
-
-			// Should get project form element, but i have no idea about make this posible :( .
-
+			// TODO: Should get project from selection element, but i have no idea about  make this possible :( .
+			
+			// final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+			// final Object element = structuredSelection.getFirstElement();
 			// project = (IProject) structuredSelection.getFirstElement();
 			// this.view.onUpdateProjectOnStructureSelection(project);
 		}
