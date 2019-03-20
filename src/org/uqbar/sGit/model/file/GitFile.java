@@ -1,5 +1,10 @@
-package org.uqbar.sGit.utils;
+package org.uqbar.sGit.model.file;
 
+/**
+ * 
+ * @author Lucas Alan Silvestri
+ *
+ */
 public class GitFile {
 
 	final private GitStatus status;

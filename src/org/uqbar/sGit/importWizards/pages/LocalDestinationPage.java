@@ -15,9 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -28,7 +25,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.uqbar.sGit.utils.GitRepository;
+import org.uqbar.sGit.model.repository.GitRepository;
+import org.uqbar.sGit.model.repository.credentials.SecureStoredCredentialsManager;
 
 public class LocalDestinationPage extends SGitWizardPage {
 
@@ -246,17 +244,8 @@ public class LocalDestinationPage extends SGitWizardPage {
 		}
 	}
 	
-	private void setCrendetialsOnSecureStore(String user, String password) {
-		ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-		ISecurePreferences node = preferences.node("credentials"); //$NON-NLS-1$
-		try {
-			node.put("user", user, true); //$NON-NLS-1$
-			node.put("password", password, true); //$NON-NLS-1$
-		}
-
-		catch (StorageException e1) {
-			e1.printStackTrace();
-		}
+	private void secureCrendentials(String user, String password) {
+		SecureStoredCredentialsManager.getInstance().secureCrendetials(user, password);
 	}
 
 	@Override
@@ -304,7 +293,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 	@Override
 	protected void onPageFinish() {
 		if (this.isSecureStoreEnable()) {
-			this.setCrendetialsOnSecureStore(this.getUsername(), this.getPassword());
+			this.secureCrendentials(this.getUsername(), this.getPassword());
 		}
 		this.cloneRepository();
 		this.importProject();

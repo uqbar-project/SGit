@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-import org.uqbar.sGit.utils.GitFile;
+import org.uqbar.sGit.model.file.GitFile;
 
 public class GitView extends SGitView {
 
@@ -117,7 +117,6 @@ public class GitView extends SGitView {
 	 */
 	private void add(String filePath) {
 		gitRepository.addFileToStaging(filePath);
-//		this.updateStagingState();
 	}
 
 	/**
@@ -132,7 +131,6 @@ public class GitView extends SGitView {
 	 */
 	private void remove(String filePath) {
 		gitRepository.removeFileFromStaging(filePath);
-//		this.updateStagingState();
 	}
 
 	/**

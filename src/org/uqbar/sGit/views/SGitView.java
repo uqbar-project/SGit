@@ -1,30 +1,59 @@
 package org.uqbar.sGit.views;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.security.storage.ISecurePreferences;
-import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
-import org.eclipse.equinox.security.storage.StorageException;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISelectionService;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.uqbar.sGit.utils.GitRepository;
+import org.uqbar.sGit.model.repository.GitRepository;
+import org.uqbar.sGit.model.repository.credentials.GitCredentials;
+import org.uqbar.sGit.model.repository.credentials.SecureStoredCredentialsManager;
 
 public abstract class SGitView extends ViewPart {
 
 	protected GitRepository gitRepository;
 	protected Composite container;
+
+	private String getWorkspacePath() {
+		return Platform.getLocation().toString();
+	}
+
+	protected void updateProject() {
+		for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+			System.out.println(project);
+		}
+	}
+
+	protected void updateView() {
+		final ISelectionService selectionService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+		selectionService.addSelectionListener(new UISelectionListener(this));
+	}
+
+	protected void update() {
+		this.updateView();
+		this.updateProject();
+	}
+
+	protected void onUpdateProjectOnStructureSelection(IProject project) {
+		gitRepository = new GitRepository(this.getWorkspacePath() + "/" + project.getName());
+		this.onProjectReferenceUpdate();
+	}
+
+	protected void onUpdateProjectOnEditorSelection(IProject project) {
+		GitCredentials credentials = SecureStoredCredentialsManager.getInstance().retrieveCrendentials();
+
+		if (!credentials.isEmpty()) {
+			gitRepository = GitRepository.getRepository(this.getWorkspacePath(), project.getName(), credentials);
+		}
+
+		else {
+			gitRepository = GitRepository.getRepository(this.getWorkspacePath(), project.getName());
+		}
+		
+		this.onProjectReferenceUpdate();
+	}
 
 	protected abstract void onFocus();
 
@@ -32,70 +61,12 @@ public abstract class SGitView extends ViewPart {
 
 	protected abstract void onProjectReferenceUpdate();
 
-	private void updateProjectReference() {
-		final IWorkbench workbrench = PlatformUI.getWorkbench();
-		final IWorkbenchWindow window = workbrench.getActiveWorkbenchWindow();
-		final ISelectionService selectionService = window.getSelectionService();
-		final String workspacePath = Platform.getLocation().toString();
-		final SGitView that = this;
-
-		selectionService.addSelectionListener(new ISelectionListener() {
-			public void selectionChanged(IWorkbenchPart sourcePart, ISelection selection) {
-				if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
-					if (((IStructuredSelection) selection).getFirstElement() instanceof IProject) {
-						final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-						final IProject project = (IProject) structuredSelection.getFirstElement();
-						gitRepository = new GitRepository(workspacePath + "/" + project.getName());
-						that.onProjectReferenceUpdate();
-					}
-				}
-
-				else {
-					IWorkbenchPage activePage = window.getActivePage();
-					IEditorPart activeEditor = activePage.getActiveEditor();
-
-					if (activeEditor != null) {
-						IEditorInput input = activeEditor.getEditorInput();
-						IProject project = (IProject) input.getAdapter(IProject.class);
-						if (project == null) {
-							IResource resource = (IResource) input.getAdapter(IResource.class);
-							if (resource != null) {
-								project = resource.getProject();
-								ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
-								ISecurePreferences node = preferences.node("credentials");
-								String user = "";
-								String password = "";
-								
-								try {
-									user = node.get("user", "n/a");
-									password = node.get("password", "n/a");
-								} 
-								catch (StorageException e) {
-									
-								}
-								
-								
-								if (user != "n/a" && password != "n/a") {
-									gitRepository = new GitRepository(workspacePath + "/git/" + project.getName(), user, password);
-								}
-								else {
-									gitRepository = new GitRepository(workspacePath + "/git/" + project.getName());
-								}
-								that.onProjectReferenceUpdate();
-							}
-						}
-					}
-				}
-			}
-		});
-	}
-
 	@Override
 	public void createPartControl(Composite parent) {
 		container = parent;
 		this.onViewInit();
 		container.pack();
-		this.updateProjectReference();
+		this.updateView();
 	}
 
 	@Override

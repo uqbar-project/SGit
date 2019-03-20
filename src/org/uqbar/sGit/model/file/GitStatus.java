@@ -1,4 +1,4 @@
-package org.uqbar.sGit.utils;
+package org.uqbar.sGit.model.file;
 
 public enum GitStatus {
 
