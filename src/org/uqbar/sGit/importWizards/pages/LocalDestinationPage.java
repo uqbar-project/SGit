@@ -4,18 +4,20 @@ import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -29,10 +31,12 @@ import org.eclipse.swt.widgets.Text;
 import org.uqbar.sGit.utils.GitCredentials;
 import org.uqbar.sGit.utils.GitRepository;
 import org.uqbar.sGit.utils.SecureStoredCredentials;
+import org.uqbar.sGit.utils.ViewHelper;
 
 public class LocalDestinationPage extends SGitWizardPage {
 
 	private GitRepository gitRepository;
+	private ViewHelper view = new ViewHelper();
 	private String repositoryName = "project"; //$NON-NLS-1$
 	private Composite destinationComposite;
 	private Composite branchesComposite;
@@ -271,14 +275,15 @@ public class LocalDestinationPage extends SGitWizardPage {
 		this.fetchBranchesFromRemote();
 	}
 
-	private void cloneRepository() {
+	private void cloneAndImportRepository() {
 			try {
 				gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName(), new GitCredentials(this.getUsername(), this.getPassword()));
+				this.importProject();
 			} 
 			
-			catch (GitAPIException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			catch (Exception e) {
+				view.showErrorDialog("Error al clonar el proyecto", "Hubo un problema al querer clonar el repositorio remoto."
+						+ " Verifique que la direccion del repositorio sea valida o que posea una conexion a internet activa.");
 			}
 	}
 
@@ -294,8 +299,24 @@ public class LocalDestinationPage extends SGitWizardPage {
 			project.open(monitor);
 		}
 
-		catch (CoreException e) {
-			e.printStackTrace();
+		catch (Exception e) {
+			boolean keep = view.showQuestionDialog("Hubo un problema al querer importar el proyecto", "¿Desea mantener el repositorio clonado localmente?");
+
+			if (!keep) {
+				java.nio.file.Path path = Paths.get(this.getDirectory() + "/git/" + repositoryName);
+				
+				  try {
+					Files.walk(path)
+					    .sorted(Comparator.reverseOrder())
+					    .map(java.nio.file.Path::toFile)
+					    .forEach(File::delete);
+				} 
+				  
+				  catch (IOException e1) {
+					  view.showErrorDialog("Error al querer eliminar el directorio =" + path.toUri().toString(), e1.getMessage());
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 	
@@ -304,8 +325,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 		if (this.isSecureStoreEnable()) {
 			this.secureCrendentials(this.getUsername(), this.getPassword());
 		}
-		this.cloneRepository();
-		this.importProject();
+		this.cloneAndImportRepository();
 	}
 
 }

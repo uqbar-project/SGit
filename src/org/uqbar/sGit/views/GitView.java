@@ -511,7 +511,6 @@ public class GitView extends SGitView implements ModifyListener {
 	}
 	
 	protected void update() {
-		this.addAll();
 		this.updateStagingState();
 		this.updateCommitDetailsState();
 	}

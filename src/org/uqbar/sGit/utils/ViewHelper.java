@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.uqbar.sGit.exceptions.RefreshProjectTroubleException;
@@ -21,8 +20,8 @@ public class ViewHelper {
 		MessageDialog.openError(null, title, message);
 	}
 
-	public void showQuestionDialog(String title, String message) {
-		MessageDialog.openQuestion(null, title, message);
+	public boolean showQuestionDialog(String title, String message) {
+		return MessageDialog.openQuestion(null, title, message);
 	}
 
 	public void showWarningDialog(String title, String message) {
@@ -43,7 +42,7 @@ public class ViewHelper {
 			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		}
 
-		catch (CoreException e) {
+		catch (Exception e) {
 			this.showErrorDialog("Error Interno", new RefreshProjectTroubleException().getMessage());
 		}
 	}
