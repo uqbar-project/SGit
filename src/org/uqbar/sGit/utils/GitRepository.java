@@ -52,10 +52,9 @@ import org.uqbar.sGit.exceptions.NotAuthorizedException;
 public class GitRepository {
 
 	private Git git;
-	private GitCredentials credentials;
 	
 	public GitRepository() {
-		this(new GitCredentials());
+		
 	}
 	
 	public GitRepository(String directoryPath) {
@@ -69,17 +68,8 @@ public class GitRepository {
 		}
 	}
 	
-	public GitRepository(GitCredentials credentials) {
-		this.credentials = credentials;
-	}
-
-	public GitRepository(String directoryPath, GitCredentials credentials) {
-		this(directoryPath);
-		this.credentials = credentials;
-	}
-	
-	public GitRepository(String workspacePath, String projectName, GitCredentials credentials) {
-		this(workspacePath + "/git/" + projectName, credentials);
+	public GitRepository(String workspacePath, String projectName) {
+		this(workspacePath + "/git/" + projectName);
 	}
 	
 	/**
@@ -288,6 +278,16 @@ public class GitRepository {
 	}
 	
 	/**
+	 * Returns a array of all branches on this repository. 
+	 */
+	public String[] getBranches(String remote, GitCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException {
+		LsRemoteCommand lsRemoteRepository = Git.lsRemoteRepository();
+		lsRemoteRepository.setRemote(remote).setHeads(true);
+		lsRemoteRepository.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+		return lsRemoteRepository.call().stream().map(this::getReferenceName).toArray(String[]::new);
+	}
+	
+	/**
 	 * Returns the origin of the repository. 
 	 */
 	public String getOrigin() {
@@ -341,7 +341,33 @@ public class GitRepository {
 	 */
 	public void push() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException, MergeConflictsException {
 		PullCommand pull = git.pull();
-		this.setCredentialsProvider(pull);
+		PushCommand push = git.push();
+
+		this.setCredentialsProvider(pull, push);
+
+		pull.call();
+		
+		RepositoryState repositoryState = git.getRepository().getRepositoryState();
+		if (repositoryState == RepositoryState.MERGING) {
+			throw new MergeConflictsException();
+		}
+		
+		push.call();
+
+	}
+	
+	public void commitAndPush(String message, String author, String authorEmail, String committer, String committerEmail) throws NoHeadException, NoMessageException, UnmergedPathsException, ConcurrentRefUpdateException, WrongRepositoryStateException, AbortedByHookException, GitAPIException {
+		CommitCommand commit = git.commit();
+		PullCommand pull = git.pull();
+		PushCommand push = git.push();
+
+		commit.setMessage(message);
+		commit.setAuthor(author, authorEmail);
+		commit.setCommitter(committer, committerEmail);
+		
+		this.setCredentialsProvider(pull, push);
+		
+		commit.call();
 		pull.call();
 		
 		RepositoryState repositoryState = git.getRepository().getRepositoryState();
@@ -349,10 +375,11 @@ public class GitRepository {
 			throw new MergeConflictsException();
 		}
 
-		PushCommand push = git.push();
-		this.setCredentialsProvider(push);
 		push.call();
-
+	}
+	
+	public void commitAndPush(String message, String author, String authorEmail) throws NoHeadException, NoMessageException, UnmergedPathsException, ConcurrentRefUpdateException, WrongRepositoryStateException, AbortedByHookException, GitAPIException {
+		this.commitAndPush(message, author, authorEmail, author, authorEmail);
 	}
 
 	/**
@@ -426,28 +453,47 @@ public class GitRepository {
 	}
 	
 	/**
-	 * Returns the necessary credentials to be able to exchange data with the remote
-	 * repository.
+	 * Performs the GIT clone operation.
+	 * 
+	 * @param directory the directory to clone the remote repository.
+	 * @param remote the remote name of project repository.
+	 * @param branch the branch name of repository to clone.
+	 * @throws GitAPIException 
+	 * @throws TransportException 
+	 * @throws InvalidRemoteException 
 	 */
-	public GitCredentials getCredentials() {
-		return this.credentials;
+	public void cloneRepository(String directory, String remote, String branch, GitCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException {
+		CloneCommand clone = Git.cloneRepository();
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+		clone.setDirectory(new File(directory + "/" + this.getRepositoryName(remote)));
+		clone.setURI(remote);
+		clone.setBranch(branch);
+		clone.setCloneAllBranches(true);
+		clone.setCloneSubmodules(true);
+		clone.call();
 	}
 	
 	@SuppressWarnings("rawtypes")
-	private void setCredentialsProvider(TransportCommand command) {
-		if (!this.credentials.isEmpty()) {
-			final String username = this.getCredentials().getUsername();
-			final String password = this.getCredentials().getPassword();
-			command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
+	private void setCredentialsProvider(TransportCommand...commands) {
+		GitCredentials credentials;
+		List<TransportCommand> commandlist = Arrays.asList(commands);
+		credentials = SecureStoredCredentials.getInstance().retrieve();
+		
+		if (!credentials.isEmpty()) {
+			for (TransportCommand command : commandlist) {
+				command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+			}
 		}
 		
 		else {
 			CrendentialsDialog dialog = new CrendentialsDialog(null);
 			dialog.open();
-			GitCredentials credentials = dialog.getCredentials();
+			credentials = dialog.getCredentials();
 			
 			if(!credentials.isEmpty()){
-				command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+				for (TransportCommand command : commandlist) {
+					command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+				}
 			}
 			
 			else {

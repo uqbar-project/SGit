@@ -12,9 +12,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-import org.uqbar.sGit.utils.GitCredentials;
 import org.uqbar.sGit.utils.GitRepository;
-import org.uqbar.sGit.utils.SecureStoredCredentials;
 import org.uqbar.sGit.utils.ViewHelper;
 import org.uqbar.sGit.utils.WorkspaceHelper;
 
@@ -52,6 +50,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 	private void makeActions() {
 		IActionBars bars = getViewSite().getActionBars();
+		
 		Action update = new Action() {
 			public void run() {
 				if (container != null && gitRepository != null) {
@@ -84,8 +83,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 					if (resource != null) {
 						project = resource.getProject();
-						GitCredentials credentials = SecureStoredCredentials.getInstance().retrieve();
-						this.gitRepository = new GitRepository(this.workspace.getCurrentWorkspacePath(), project.getName(), credentials);
+						this.gitRepository = new GitRepository(this.workspace.getCurrentWorkspacePath(), project.getName());
 						this.onUpdate();
 					}
 

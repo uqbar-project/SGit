@@ -3,8 +3,6 @@ package org.uqbar.sGit.utils;
 import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
 
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
@@ -18,7 +16,6 @@ public class CrendentialsDialog extends Dialog {
 	private String username = "";
 	private String password = "";
 	private Button secureCheckbox;
-	private boolean okPressed = false;
 
 	public CrendentialsDialog(Shell parent) {
 		super(parent);
@@ -47,7 +44,6 @@ public class CrendentialsDialog extends Dialog {
 		usernameText = new Text(container, BORDER | SINGLE);
 		usernameText.setLayoutData(new GridData(FILL_HORIZONTAL));
 		usernameText.setText(""); //$NON-NLS-1$
-		// username.addModifyListener(this);
 
 		final Label passwordLabel = new Label(container, PUSH);
 		final GridData passwordGridData = new GridData(HORIZONTAL_ALIGN_FILL);
@@ -58,26 +54,12 @@ public class CrendentialsDialog extends Dialog {
 		passwordText = new Text(container, BORDER | SINGLE | PASSWORD);
 		passwordText.setLayoutData(new GridData(FILL_HORIZONTAL));
 		passwordText.setText(""); //$NON-NLS-1$
-		// password.addModifyListener(this);
 
 		secureCheckbox = new Button(container, CHECK);
 		final GridData secureCheckboxGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		secureCheckboxGridData.horizontalSpan = 2;
 		secureCheckbox.setLayoutData(secureCheckboxGridData);
 		secureCheckbox.setText("¿Desea recordar su nombre de usuario y contraseña?");
-		secureCheckbox.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				// that.updatePageState();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// this.widgetSelected(e);
-			}
-
-		});
 
 		container.pack();
 
@@ -109,13 +91,8 @@ public class CrendentialsDialog extends Dialog {
 			SecureStoredCredentials.getInstance().secure(username, password);
 		}
 		super.okPressed();
-		okPressed = true;
 	}
 	
-	public boolean isOkPressed(){
-		return okPressed;
-	}
-
 	public GitCredentials getCredentials(){
 		return new GitCredentials(username, password);
 	}

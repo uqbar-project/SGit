@@ -211,6 +211,17 @@ public class GitView extends SGitView implements ModifyListener {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}
+	
+	private void commitAndPush(String message, String author, String authorEmail){
+		try {
+			gitRepository.commitAndPush(message, author, authorEmail);
+			this.updateStagingState();
+		}
+
+		catch (Exception e) {
+			this.validateErrorMessage(e.getMessage());
+		}
+	}
 
 	/**
 	 * Perform a Git pull Action.
@@ -387,8 +398,7 @@ public class GitView extends SGitView implements ModifyListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				that.commit(commitMessageTexbox.getText(), authorName, authorEmail);
-				that.push();
+				that.commitAndPush(commitMessageTexbox.getText(), authorName, authorEmail);
 				that.update();
 				that.view.refreshWorkspace();
 			}

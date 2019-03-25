@@ -99,7 +99,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 
 	private void fetchBranchesFromRemote() {
 		try {
-			branches.setItems(gitRepository.getBranches(this.getUri()));
+			branches.setItems(gitRepository.getBranches(this.getUri(), new GitCredentials(this.getUsername(), this.getPassword())));
 			branches.select(branches.indexOf(
 					this.getBranchesItems()
 					.stream()
@@ -258,7 +258,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 
 	@Override
 	protected void onPageShow() {
-		gitRepository = new GitRepository(new GitCredentials(this.getUsername(), this.getPassword()));
+		gitRepository = new GitRepository();
 		repositoryName = gitRepository.getRepositoryName(this.getUri());
 		this.updateDescriptionWithReposityName();
 		this.setAllCompositeEnabled(true);
@@ -273,7 +273,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 
 	private void cloneRepository() {
 			try {
-				gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName());
+				gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName(), new GitCredentials(this.getUsername(), this.getPassword()));
 			} 
 			
 			catch (GitAPIException e) {
