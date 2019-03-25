@@ -140,6 +140,11 @@ public class GitView extends SGitView implements ModifyListener {
 			}
 			
 		}
+		
+		else {
+			authorCombo.removeAll();
+			commitMessageTexbox.setText("");
+		}
 
 	}
 
@@ -505,7 +510,8 @@ public class GitView extends SGitView implements ModifyListener {
 		this.disableCommitAndPushButton();
 	}
 	
-	protected void update(){
+	protected void update() {
+		this.addAll();
 		this.updateStagingState();
 		this.updateCommitDetailsState();
 	}
@@ -513,7 +519,7 @@ public class GitView extends SGitView implements ModifyListener {
 	@Override
 	protected void onFocus() {
 		if (gitRepository != null) {
-			this.updateStagingState();
+			this.update();
 		}
 	}
 
@@ -525,6 +531,13 @@ public class GitView extends SGitView implements ModifyListener {
 			this.enableCommitterArea();
 			this.enablePullButton();
 			this.enablePushButton();
+		}
+		
+		else {
+			this.disableStagingArea();
+			this.disableCommitterArea();
+			this.disablePullButton();
+			this.disablePushButton();
 		}
 	}
 	

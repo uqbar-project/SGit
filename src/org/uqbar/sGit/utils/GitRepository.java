@@ -138,9 +138,12 @@ public class GitRepository {
 		
 		try {
 			treeName = repository.getFullBranch();
-			commits = git.log().add(repository.resolve(treeName)).call();
-			for (RevCommit commit : commits) {
-				authors.add(commit.getAuthorIdent());
+
+			if(treeName != null || commits != null){
+				commits = git.log().add(repository.resolve(treeName)).call();
+				for (RevCommit commit : commits) {
+					authors.add(commit.getAuthorIdent());
+				}
 			}
 
 		}
