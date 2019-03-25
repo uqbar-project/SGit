@@ -96,11 +96,18 @@ public class CrendentialsDialog extends Dialog {
 	protected Point getInitialSize() {
 		return new Point(400, 200);
 	}
+	
+	public Boolean isSecureStoreEnable() {
+		return secureCheckbox.getSelection();
+	}
 
 	@Override
 	protected void okPressed() {
 		username = usernameText.getText();
 		password = passwordText.getText();
+		if (this.isSecureStoreEnable()) {
+			SecureStoredCredentials.getInstance().secure(username, password);
+		}
 		super.okPressed();
 		okPressed = true;
 	}
