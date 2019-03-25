@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
@@ -75,7 +74,7 @@ public class GitView extends SGitView implements ModifyListener {
 		else if (message.contains("Existen conflictos entre el repositorio local y el remoto")) {
 			view.showWarningDialog("Git", new MergeConflictsException().getMessage());
 		}
-
+		
 		else {
 			view.showErrorDialog("Error", new SgitException(message).getMessage());
 		}
@@ -222,7 +221,7 @@ public class GitView extends SGitView implements ModifyListener {
 			this.updateStagingState();
 		} 
 		
-		catch (GitAPIException e) {
+		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}

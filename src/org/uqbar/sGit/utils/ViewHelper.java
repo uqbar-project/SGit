@@ -9,38 +9,31 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Shell;
 import org.uqbar.sGit.exceptions.RefreshProjectTroubleException;
 
 public class ViewHelper {
 
-	private Shell parent;
-
-	public ViewHelper(Shell parent) {
-		this.parent = parent;
-	}
-
 	public void showInformationDialog(String title, String message) {
-		MessageDialog.openInformation(this.parent, title, message);
+		MessageDialog.openInformation(null, title, message);
 	}
 
 	public void showErrorDialog(String title, String message) {
-		MessageDialog.openError(this.parent, title, message);
+		MessageDialog.openError(null, title, message);
 	}
 
 	public void showQuestionDialog(String title, String message) {
-		MessageDialog.openQuestion(this.parent, title, message);
+		MessageDialog.openQuestion(null, title, message);
 	}
 
 	public void showWarningDialog(String title, String message) {
-		MessageDialog.openWarning(this.parent, title, message);
+		MessageDialog.openWarning(null, title, message);
 	}
 
 	
 	public void showConfirmDialog(String title, String message) {
-		MessageDialog.openConfirm(this.parent, title, message);
+		MessageDialog.openConfirm(null, title, message);
 	}
-
+	
 	public List<IProject> getProjects() {
 		return Arrays.asList(ResourcesPlugin.getWorkspace().getRoot().getProjects());
 	}

@@ -34,7 +34,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 	@Override
 	public void createPartControl(Composite parent) {
 		this.container = parent;
-		this.view = new ViewHelper(container.getShell());
+		this.view = new ViewHelper();
 		this.workspace = new WorkspaceHelper();
 		this.onViewInit();
 		this.workspace.getSelectionService().addSelectionListener(this);

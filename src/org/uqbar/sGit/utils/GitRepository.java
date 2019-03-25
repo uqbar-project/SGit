@@ -47,6 +47,7 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.uqbar.sGit.exceptions.MergeConflictsException;
+import org.uqbar.sGit.exceptions.NotAuthorizedException;
 
 public class GitRepository {
 
@@ -338,7 +339,7 @@ public class GitRepository {
 	 * @throws TransportException 
 	 * @throws InvalidRemoteException 
 	 */
-	public void push() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException {
+	public void push() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException, MergeConflictsException {
 		PullCommand pull = git.pull();
 		this.setCredentialsProvider(pull);
 		pull.call();
@@ -367,7 +368,7 @@ public class GitRepository {
 	 * @throws InvalidConfigurationException 
 	 * @throws WrongRepositoryStateException 
 	 */
-	public void pull() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException {
+	public void pull() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException, MergeConflictsException {
 		PullCommand pull = git.pull();
 		this.setCredentialsProvider(pull);
 		pull.call();
@@ -437,9 +438,21 @@ public class GitRepository {
 		if (!this.credentials.isEmpty()) {
 			final String username = this.getCredentials().getUsername();
 			final String password = this.getCredentials().getPassword();
-			System.out.println("The username is =" + username);
-			System.out.println("The password is =" + password);
 			command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(username, password));
+		}
+		
+		else {
+			CrendentialsDialog dialog = new CrendentialsDialog(null);
+			dialog.open();
+			GitCredentials credentials = dialog.getCredentials();
+			
+			if(!credentials.isEmpty()){
+				command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+			}
+			
+			else {
+				throw new NotAuthorizedException();					
+			}
 		}
 	}
 
