@@ -15,6 +15,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -31,9 +33,13 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-import org.uqbar.sGit.model.file.GitFile;
+import org.uqbar.sGit.exceptions.MergeConflictsException;
+import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
+import org.uqbar.sGit.exceptions.NotAuthorizedException;
+import org.uqbar.sGit.exceptions.SgitException;
+import org.uqbar.sGit.utils.GitFile;
 
-public class GitView extends SGitView {
+public class GitView extends SGitView implements ModifyListener {
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -44,24 +50,34 @@ public class GitView extends SGitView {
 	private Label stagingFilesLabel;
 	private Table unstagedFiles;
 	private Table stagedFiles;
+	private ToolItem addItem;
+	private ToolItem addAllItem;
+	private ToolItem removeItem;
+	private ToolItem removeAllItem;
 	private Text commitMessageTexbox;
 	private Combo authorCombo;
 	private String authorName;
 	private String authorEmail;
-	private String committerName;
-	private String committerEmail;
+	private Button commit;
+	private Button pull;
+	private Button push;
+	private Button commitAndPush;
 	
 	private void validateErrorMessage(String message) {
 		if (message.contains("not authorized")) {
-			this.showErrorDialog("Nombre de usuario y/o contraseña invalidas, acceso al repositorio remoto no autorizado.");
+			view.showErrorDialog("Git", new NotAuthorizedException().getMessage());
 		}
 
 		else if (message.contains("cannot open git-receive-pack")) {
-			this.showErrorDialog("No se pudo establecer la conexión con el repositorio remoto, revise si su conexión a internet esta habilitada.");
+			view.showErrorDialog("Git", new NoConnectionWithRemoteException().getMessage());
+		}
+		
+		else if (message.contains("Existen conflictos entre el repositorio local y el remoto")) {
+			view.showWarningDialog("Git", new MergeConflictsException().getMessage());
 		}
 
 		else {
-			this.showErrorDialog(message);
+			view.showErrorDialog("Error", new SgitException(message).getMessage());
 		}
 	}
 
@@ -116,11 +132,8 @@ public class GitView extends SGitView {
 
 		if (authorCombo.getItemCount() > 0) {
 			PersonIdent author = gitRepository.getAuthors().stream().filter(a -> a.getName().equals(authorCombo.getText())).findFirst().get();
-
 			authorName = author.getName();
 			authorEmail = author.getEmailAddress();
-			committerName = author.getName();
-			committerEmail = author.getEmailAddress();
 		}
 		commitMessageTexbox.setText("");
 
@@ -134,7 +147,7 @@ public class GitView extends SGitView {
 			gitRepository.addFileToStaging(filePath);
 		} 
 		
-		catch (GitAPIException e) {
+		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}
@@ -154,7 +167,7 @@ public class GitView extends SGitView {
 			gitRepository.removeFileFromStaging(filePath);
 		} 
 		
-		catch (GitAPIException e) {
+		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}
@@ -175,13 +188,13 @@ public class GitView extends SGitView {
 	 * @param committer name.
 	 * @param committerEmail the committer email.
 	 */
-	private void commit(String message, String author, String email, String committer, String committerEmail) {
+	private void commit(String message, String author, String email) {
 		try {
-			gitRepository.commit(message, author, email, committer, committerEmail);
-			this.updateStagingState();
+			gitRepository.commit(message, author, email);
+			this.update();
 		} 
 		
-		catch (GitAPIException e) {
+		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}
@@ -195,7 +208,7 @@ public class GitView extends SGitView {
 			this.updateStagingState();
 		}
 
-		catch (GitAPIException e) {
+		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}
@@ -237,7 +250,7 @@ public class GitView extends SGitView {
 		final ToolBar unstagingActionToolBar = new ToolBar(unstagingToolbarComposite, BORDER);
 		unstagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
-		final ToolItem addItem = new ToolItem(unstagingActionToolBar, PUSH);
+		addItem = new ToolItem(unstagingActionToolBar, PUSH);
 		addItem.setImage(this.getImage("add"));
 		addItem.addSelectionListener(new SelectionListener() {
 
@@ -246,6 +259,7 @@ public class GitView extends SGitView {
 				if (unstagedFiles.getSelectionIndex() >= 0) {
 					Arrays.asList(unstagedFiles.getSelection()).stream().forEach(item -> that.add(item.getText()));
 					that.updateStagingState();
+					that.enableCommitIfCanMakeACommit();
 				}
 			}
 
@@ -256,7 +270,7 @@ public class GitView extends SGitView {
 
 		});
 
-		final ToolItem addAllItem = new ToolItem(unstagingActionToolBar, PUSH);
+		addAllItem = new ToolItem(unstagingActionToolBar, PUSH);
 		addAllItem.setImage(this.getImage("add_all"));
 		addAllItem.addSelectionListener(new SelectionListener() {
 
@@ -264,6 +278,7 @@ public class GitView extends SGitView {
 			public void widgetSelected(SelectionEvent e) {
 				that.addAll();
 				that.updateStagingState();
+				that.enableCommitIfCanMakeACommit();
 			}
 
 			@Override
@@ -294,7 +309,7 @@ public class GitView extends SGitView {
 		ToolBar stagingActionToolBar = new ToolBar(stagingToolbarComposite, BORDER);
 		stagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
-		ToolItem removeItem = new ToolItem(stagingActionToolBar, PUSH);
+		removeItem = new ToolItem(stagingActionToolBar, PUSH);
 		removeItem.setImage(this.getImage("unstage"));
 		removeItem.addSelectionListener(new SelectionListener() {
 
@@ -303,6 +318,7 @@ public class GitView extends SGitView {
 				if (stagedFiles.getSelectionIndex() >= 0) {
 					Arrays.asList(stagedFiles.getSelection()).stream().forEach(item -> that.remove(item.getText()));
 					that.updateStagingState();
+					that.enableCommitIfCanMakeACommit();
 				}
 			}
 
@@ -313,7 +329,7 @@ public class GitView extends SGitView {
 
 		});
 
-		ToolItem removeAllItem = new ToolItem(stagingActionToolBar, PUSH);
+		removeAllItem = new ToolItem(stagingActionToolBar, PUSH);
 		removeAllItem.setImage(this.getImage("unstage_all"));
 		removeAllItem.addSelectionListener(new SelectionListener() {
 
@@ -321,6 +337,7 @@ public class GitView extends SGitView {
 			public void widgetSelected(SelectionEvent e) {
 				that.removeAll();
 				that.updateStagingState();
+				that.enableCommitIfCanMakeACommit();
 			}
 
 			@Override
@@ -345,6 +362,7 @@ public class GitView extends SGitView {
 
 		commitMessageTexbox = new Text(commiterContainer, BORDER | H_SCROLL | V_SCROLL | WRAP);
 		commitMessageTexbox.setLayoutData(new GridData(FILL_BOTH));
+		commitMessageTexbox.addModifyListener(this);
 
 		final Label authorLabel = new Label(commiterContainer, NULL);
 		authorLabel.setText(AUTHOR);
@@ -362,18 +380,18 @@ public class GitView extends SGitView {
 		commiterButtonsComposite.setLayout(commiterButtonsCompositeLayout);
 		commiterButtonsComposite.setLayoutData(new GridData(FILL_HORIZONTAL));
 
-		final Button commitAndPushButton = new Button(commiterButtonsComposite, PUSH);
-		commitAndPushButton.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		commitAndPushButton.setText(COMMIT_AND_PUSH_ACTION);
-		commitAndPushButton.setImage(this.getImage("commitandpush"));
-		commitAndPushButton.addSelectionListener(new SelectionListener() {
+		commitAndPush = new Button(commiterButtonsComposite, PUSH);
+		commitAndPush.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
+		commitAndPush.setText(COMMIT_AND_PUSH_ACTION);
+		commitAndPush.setImage(this.getImage("commitandpush"));
+		commitAndPush.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				that.commit(commitMessageTexbox.getText(), authorName, authorEmail, committerName, committerEmail);
+				that.commit(commitMessageTexbox.getText(), authorName, authorEmail);
 				that.push();
-				that.updateStagingState();
-				that.updateCommitDetailsState();
+				that.update();
+				that.view.refreshWorkspace();
 			}
 
 			@Override
@@ -383,7 +401,7 @@ public class GitView extends SGitView {
 
 		});
 
-		final Button push = new Button(commiterButtonsComposite, PUSH);
+		push = new Button(commiterButtonsComposite, PUSH);
 		push.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		push.setText(PUSH_ACTION);
 		push.setImage(this.getImage("push"));
@@ -392,8 +410,8 @@ public class GitView extends SGitView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				that.push();
-				that.updateStagingState();
-				that.updateCommitDetailsState();
+				that.update();
+				that.view.refreshWorkspace();
 			}
 
 			@Override
@@ -403,7 +421,7 @@ public class GitView extends SGitView {
 
 		});
 
-		final Button pull = new Button(commiterButtonsComposite, PUSH);
+		pull = new Button(commiterButtonsComposite, PUSH);
 		pull.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		pull.setText(PULL_ACTION);
 		pull.setImage(this.getImage("pull"));
@@ -412,8 +430,8 @@ public class GitView extends SGitView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				that.pull();
-				that.updateStagingState();
-				that.updateCommitDetailsState();
+				that.update();
+				that.view.refreshWorkspace();
 			}
 
 			@Override
@@ -423,7 +441,7 @@ public class GitView extends SGitView {
 
 		});
 
-		final Button commit = new Button(commiterButtonsComposite, PUSH);
+		commit = new Button(commiterButtonsComposite, PUSH);
 		commit.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		commit.setImage(this.getImage("commit"));
 		commit.setText(COMMIT_ACTION);
@@ -431,9 +449,9 @@ public class GitView extends SGitView {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				that.commit(commitMessageTexbox.getText(), authorName, authorEmail, committerName, committerEmail);
-				that.updateStagingState();
-				that.updateCommitDetailsState();
+				that.commit(commitMessageTexbox.getText(), authorName, authorEmail);
+				that.update();
+				that.view.refreshWorkspace();
 			}
 
 			@Override
@@ -442,7 +460,18 @@ public class GitView extends SGitView {
 			}
 
 		});
-
+		
+		this.disableStagingArea();
+		this.disableCommitterArea();
+		this.disableCommitButton();
+		this.disablePullButton();
+		this.disablePushButton();
+		this.disableCommitAndPushButton();
+	}
+	
+	protected void update(){
+		this.updateStagingState();
+		this.updateCommitDetailsState();
 	}
 
 	@Override
@@ -453,9 +482,95 @@ public class GitView extends SGitView {
 	}
 
 	@Override
-	protected void onProjectReferenceUpdate() {
-		this.updateStagingState();
-		this.updateCommitDetailsState();
+	protected void onUpdate() {
+		if(this.isRepositoryAlreadyInitializated()) {
+			this.update();
+			this.enableStagingArea();
+			this.enableCommitterArea();
+			this.enablePullButton();
+			this.enablePushButton();
+		}
+	}
+	
+	private boolean isRepositoryAlreadyInitializated(){
+		return this.gitRepository != null;
+	}
+
+	private void disableCommitButton() {
+		this.commit.setEnabled(false);
+	}
+
+	private void enableCommitButton() {
+		this.commit.setEnabled(true);
+	}
+	
+	private void disableCommitAndPushButton() {
+		this.commitAndPush.setEnabled(false);
+	}
+
+	private void enableCommitAndPushButton() {
+		this.commitAndPush.setEnabled(true);
+	}
+	
+	private void disablePullButton() {
+		this.pull.setEnabled(false);
+	}
+
+	private void enablePullButton() {
+		this.pull.setEnabled(true);
+	}
+	
+	private void disablePushButton() {
+		this.push.setEnabled(false);
+	}
+
+	private void enablePushButton() {
+		this.push.setEnabled(true);
+	}
+	
+	private void disableStagingArea() {
+		this.addItem.setEnabled(false);
+		this.addAllItem.setEnabled(false);
+		this.removeItem.setEnabled(false);
+		this.removeAllItem.setEnabled(false);
+	}
+
+	private void enableStagingArea() {
+		this.addItem.setEnabled(true);
+		this.addAllItem.setEnabled(true);
+		this.removeItem.setEnabled(true);
+		this.removeAllItem.setEnabled(true);
+	}
+	
+	private void disableCommitterArea() {
+		this.commitMessageTexbox.setEnabled(false);
+		this.authorCombo.setEnabled(false);
+	}
+
+	private void enableCommitterArea() {
+		this.commitMessageTexbox.setEnabled(true);
+		this.authorCombo.setEnabled(true);
+	}
+
+	private boolean canMakeACommit() {
+		return this.isRepositoryAlreadyInitializated() && this.stagedFiles.getItemCount() > 0 && this.commitMessageTexbox.getText().length() > 0;
+	}
+	
+	private void enableCommitIfCanMakeACommit(){
+		if (this.canMakeACommit()) {
+			this.enableCommitButton();
+			this.enableCommitAndPushButton();
+		}
+		
+		else {
+			this.disableCommitButton();
+			this.disableCommitAndPushButton();
+		}
+	}
+	
+	@Override
+	public void modifyText(ModifyEvent e) {
+		this.enableCommitIfCanMakeACommit();
 	}
 
 }

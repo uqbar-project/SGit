@@ -1,4 +1,4 @@
-package org.uqbar.sGit.model.repository.credentials;
+package org.uqbar.sGit.utils;
 
 import org.eclipse.equinox.security.storage.ISecurePreferences;
 import org.eclipse.equinox.security.storage.SecurePreferencesFactory;
@@ -8,25 +8,25 @@ import org.eclipse.equinox.security.storage.StorageException;
  * @author Lucas Alan Silvestri
  *
  */
-public class SecureStoredCredentialsManager {
+public class SecureStoredCredentials {
 
-	private static SecureStoredCredentialsManager instance = new SecureStoredCredentialsManager();
+	private static SecureStoredCredentials instance = new SecureStoredCredentials();
 	final ISecurePreferences preferences = SecurePreferencesFactory.getDefault();
 	final ISecurePreferences node = preferences.node("credentials");
 
-	public static SecureStoredCredentialsManager getInstance() {
+	public static SecureStoredCredentials getInstance() {
 		if (instance == null) {
 
-			instance = new SecureStoredCredentialsManager();
+			instance = new SecureStoredCredentials();
 		}
 		return instance;
 	}
 
-	private SecureStoredCredentialsManager() {
+	private SecureStoredCredentials() {
 
 	}
 
-	public void secureCrendetials(String user, String password) {
+	public void secure(String user, String password) {
 		try {
 			node.put("user", user, true);
 			node.put("password", password, true);
@@ -38,23 +38,15 @@ public class SecureStoredCredentialsManager {
 		}
 	}
 
-	public GitCredentials retrieveCrendentials() {
+	public GitCredentials retrieve() {
 		try {
 			String username = node.get("user", "");
 			String password = node.get("password", "");
-
-			if (username == "" && password == "") {
-				return GitCredentials.NO_CREDENTIALS;
-			}
-
-			else {
-				return new GitCredentials(username, password);
-			}
-
+			return new GitCredentials(username, password);
 		}
 
 		catch (StorageException e) {
-			return GitCredentials.NO_CREDENTIALS;
+			return new GitCredentials();
 		}
 	}
 

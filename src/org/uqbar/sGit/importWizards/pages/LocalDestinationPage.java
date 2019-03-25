@@ -26,8 +26,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.uqbar.sGit.model.repository.GitRepository;
-import org.uqbar.sGit.model.repository.credentials.SecureStoredCredentialsManager;
+import org.uqbar.sGit.utils.GitCredentials;
+import org.uqbar.sGit.utils.GitRepository;
+import org.uqbar.sGit.utils.SecureStoredCredentials;
 
 public class LocalDestinationPage extends SGitWizardPage {
 
@@ -246,7 +247,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 	}
 	
 	private void secureCrendentials(String user, String password) {
-		SecureStoredCredentialsManager.getInstance().secureCrendetials(user, password);
+		SecureStoredCredentials.getInstance().secure(user, password);
 	}
 
 	@Override
@@ -257,7 +258,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 
 	@Override
 	protected void onPageShow() {
-		gitRepository = new GitRepository(this.getUsername(), this.getPassword());
+		gitRepository = new GitRepository(new GitCredentials(this.getUsername(), this.getPassword()));
 		repositoryName = gitRepository.getRepositoryName(this.getUri());
 		this.updateDescriptionWithReposityName();
 		this.setAllCompositeEnabled(true);

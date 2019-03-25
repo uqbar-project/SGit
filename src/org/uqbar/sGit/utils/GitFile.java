@@ -1,4 +1,4 @@
-package org.uqbar.sGit.model.file;
+package org.uqbar.sGit.utils;
 
 /**
  * 

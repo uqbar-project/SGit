@@ -1,4 +1,4 @@
-package org.uqbar.sGit.model.repository.credentials;
+package org.uqbar.sGit.utils;
 
 /**
  * The GitCredentials class is the abstraction of the necessary credentials to
@@ -9,11 +9,16 @@ package org.uqbar.sGit.model.repository.credentials;
  */
 public class GitCredentials {
 
-	final private static String NO_USERNAME = "";
-	final private static String NO_PASSWORD = "";
-	final public static GitCredentials NO_CREDENTIALS = new GitCredentials(NO_USERNAME, NO_PASSWORD);
 	final private String username;
 	final private String password;
+	
+	/**
+	 * Creates a new empty Credentials.
+	 */
+	public GitCredentials() {
+		this.username = "";
+		this.password = "";
+	}
 
 	/**
 	 * Creates a new Credentials.
@@ -24,14 +29,6 @@ public class GitCredentials {
 	public GitCredentials(final String username, final String password) {
 		this.username = username;
 		this.password = password;
-	}
-
-	/**
-	 * Creates a new Empty Credentials.
-	 */
-	public GitCredentials() {
-		this.username = NO_USERNAME;
-		this.password = NO_PASSWORD;
 	}
 
 	/**
@@ -52,7 +49,7 @@ public class GitCredentials {
 	 * Returns if the credentials are empty.
 	 */
 	public boolean isEmpty() {
-		return this.getUsername() == NO_USERNAME && this.getPassword() == NO_PASSWORD;
+		return username == "" && password == "";
 	}
 
 }
