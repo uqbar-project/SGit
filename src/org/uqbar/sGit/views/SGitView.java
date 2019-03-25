@@ -93,4 +93,9 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 	}
 
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Object getAdapter(Class adapter) {
+		return super.getAdapter(adapter);
+	}
 }
