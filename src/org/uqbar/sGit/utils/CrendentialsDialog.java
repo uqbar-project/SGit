@@ -39,7 +39,7 @@ public class CrendentialsDialog extends Dialog {
 		final GridData usernameGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		usernameGridData.horizontalSpan = 1;
 		usernameLabel.setLayoutData(usernameGridData);
-		usernameLabel.setText("Usuario:");
+		usernameLabel.setText(Messages.USER);
 
 		usernameText = new Text(container, BORDER | SINGLE);
 		usernameText.setLayoutData(new GridData(FILL_HORIZONTAL));
@@ -59,7 +59,7 @@ public class CrendentialsDialog extends Dialog {
 		final GridData secureCheckboxGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		secureCheckboxGridData.horizontalSpan = 2;
 		secureCheckbox.setLayoutData(secureCheckboxGridData);
-		secureCheckbox.setText("¿Desea recordar su nombre de usuario y contraseña?");
+		secureCheckbox.setText(Messages.STORE_IN_SECURE_STORE);
 
 		container.pack();
 

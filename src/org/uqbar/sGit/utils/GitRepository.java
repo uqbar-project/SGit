@@ -117,20 +117,13 @@ public class GitRepository {
 
 	/**
 	 *	Returns the last Commit. 
+	 * @throws IOException 
 	 */
-	private RevCommit getLastCommit() {
-		RevCommit commit = null;
-		try {
-			final RevWalk revWalk = new RevWalk(git.getRepository());
-			final ObjectId branchID = git.getRepository().getRefDatabase().getRef("HEAD").getObjectId();
-			commit = revWalk.parseCommit(branchID);
-			revWalk.close();
-		}
-
-		catch (IOException e) {
-			// TODO: Needs a Validation.
-			e.printStackTrace();
-		}
+	private RevCommit getLastCommit() throws IOException {
+		final RevWalk revWalk = new RevWalk(git.getRepository());
+		final ObjectId branchID = git.getRepository().getRefDatabase().getRef("HEAD").getObjectId();
+		final RevCommit commit = revWalk.parseCommit(branchID);
+		revWalk.close();
 		return commit;
 	}
 	
@@ -149,8 +142,8 @@ public class GitRepository {
 			for (RevCommit commit : commits) {
 				authors.add(commit.getAuthorIdent());
 			}
-			
-		} 
+
+		}
 		
 		catch (RevisionSyntaxException | GitAPIException | IOException e) {
 			// TODO: Needs a Validation.
@@ -163,15 +156,17 @@ public class GitRepository {
 
 	/**
 	 *	Returns the last Author identification. 
+	 * @throws IOException 
 	 */
-	public PersonIdent getLastAuthor() {
+	public PersonIdent getLastAuthor() throws IOException {
 		return this.getLastCommit().getAuthorIdent();
 	}
 	
 	/**
 	 *	Returns the last committer identification. 
+	 * @throws IOException 
 	 */
-	public PersonIdent getLastCommitter() {
+	public PersonIdent getLastCommitter() throws IOException {
 		return this.getLastCommit().getCommitterIdent();
 	}
 	

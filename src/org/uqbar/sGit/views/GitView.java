@@ -4,6 +4,7 @@ import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
 import static org.uqbar.sGit.views.Messages.*;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
 import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.GitFile;
+import org.uqbar.sGit.utils.NewAuthorDialog;
 
 public class GitView extends SGitView implements ModifyListener {
 
@@ -55,8 +57,6 @@ public class GitView extends SGitView implements ModifyListener {
 	private ToolItem removeAllItem;
 	private Text commitMessageTexbox;
 	private Combo authorCombo;
-	private String authorName;
-	private String authorEmail;
 	private Button commit;
 	private Button pull;
 	private Button push;
@@ -124,17 +124,22 @@ public class GitView extends SGitView implements ModifyListener {
 	 * Updates committer box state.
 	 */
 	private void updateCommitDetailsState() {
-
-		Set<String> authorsName = gitRepository.getAuthors().stream().map(a -> a.getName()).collect(Collectors.toSet());
-		authorCombo.setItems(authorsName.toArray(new String[0]));
-		authorCombo.select(authorCombo.indexOf(gitRepository.getLastAuthor().getName()));
-
-		if (authorCombo.getItemCount() > 0) {
-			PersonIdent author = gitRepository.getAuthors().stream().filter(a -> a.getName().equals(authorCombo.getText())).findFirst().get();
-			authorName = author.getName();
-			authorEmail = author.getEmailAddress();
+		if(gitRepository != null) {
+			Set<String> authorsName = gitRepository.getAuthors().stream().map(PersonIdent::getName).collect(Collectors.toSet());
+			authorCombo.setItems(authorsName.toArray(new String[0]));
+		
+			try {
+				if (authorCombo.getItemCount() > 0) {
+					authorCombo.select(authorCombo.indexOf(gitRepository.getLastAuthor().getName()));
+				}
+			} 
+			
+			catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
-		commitMessageTexbox.setText("");
 
 	}
 
@@ -190,7 +195,6 @@ public class GitView extends SGitView implements ModifyListener {
 	private void commit(String message, String author, String email) {
 		try {
 			gitRepository.commit(message, author, email);
-			this.update();
 		} 
 		
 		catch (Exception e) {
@@ -204,7 +208,6 @@ public class GitView extends SGitView implements ModifyListener {
 	private void push() {
 		try {
 			gitRepository.push();
-			this.updateStagingState();
 		}
 
 		catch (Exception e) {
@@ -212,10 +215,9 @@ public class GitView extends SGitView implements ModifyListener {
 		}
 	}
 	
-	private void commitAndPush(String message, String author, String authorEmail){
+	private void commitAndPush(String message, String author, String authorEmail) {
 		try {
 			gitRepository.commitAndPush(message, author, authorEmail);
-			this.updateStagingState();
 		}
 
 		catch (Exception e) {
@@ -229,7 +231,6 @@ public class GitView extends SGitView implements ModifyListener {
 	private void pull() {
 		try {
 			gitRepository.pull();
-			this.updateStagingState();
 		} 
 		
 		catch (Exception e) {
@@ -398,7 +399,20 @@ public class GitView extends SGitView implements ModifyListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				that.commitAndPush(commitMessageTexbox.getText(), authorName, authorEmail);
+				PersonIdent author = gitRepository.getAuthors().stream().filter(a -> a.getName().equals(authorCombo.getText())).findFirst().orElse(null);
+				
+				if(author != null){
+					that.commitAndPush(commitMessageTexbox.getText(), author.getName(), author.getEmailAddress());
+				}
+				
+				else {
+					NewAuthorDialog dialog = new NewAuthorDialog(null, authorCombo.getText());
+					dialog.open();
+					if (dialog.getName() != "" && dialog.getEmail() != "") {
+						that.commitAndPush(commitMessageTexbox.getText(), dialog.getName(), dialog.getEmail());
+					}
+				}
+				commitMessageTexbox.setText("");
 				that.update();
 				that.view.refreshWorkspace();
 			}
@@ -458,7 +472,20 @@ public class GitView extends SGitView implements ModifyListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				that.commit(commitMessageTexbox.getText(), authorName, authorEmail);
+				PersonIdent author = gitRepository.getAuthors().stream().filter(a -> a.getName().equals(authorCombo.getText())).findFirst().orElse(null);
+				
+				if(author != null){
+					that.commit(commitMessageTexbox.getText(), author.getName(), author.getEmailAddress());
+				}
+				
+				else {
+					NewAuthorDialog dialog = new NewAuthorDialog(null, authorCombo.getText());
+					dialog.open();
+					if (dialog.getName() != "" && dialog.getEmail() != "") {
+						that.commit(commitMessageTexbox.getText(), dialog.getName(), dialog.getEmail());
+					}
+				}
+				commitMessageTexbox.setText("");
 				that.update();
 				that.view.refreshWorkspace();
 			}
