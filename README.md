@@ -11,19 +11,7 @@ TODO
 * Java development kit >= 8.
 
 ### Features
-
-Import projects faster:
-
-![Alt Text](https://s2.gifyu.com/images/import-project.gif)
-
-Add or remove changes to the index:
-
-![Alt Text](https://s2.gifyu.com/images/staging-example.gif)
-
-commit and push easily:
-
-![Alt Text](https://im2.ezgif.com/tmp/ezgif-2-ee6ff29a19a9.gif)
-
+TODO
 
 #### Built With
 
