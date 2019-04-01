@@ -2,7 +2,10 @@ package org.uqbar.sGit.utils;
 
 import static org.uqbar.sGit.utils.GitStatus.*;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
@@ -34,6 +38,7 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
+import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.Constants;
@@ -192,23 +197,6 @@ public class GitRepository {
 	}
 	
 	/**
-	 * Returns the current branch name for this repository.
-	 */
-	public String getCurrentBranch() {
-		String branch = "master";
-		try {
-			branch = git.getRepository().getBranch();
-		}
-
-		catch (IOException e) {
-			// TODO: Needs a Validation.
-			e.printStackTrace();
-		}
-
-		return branch;
-	}
-	
-	/**
 	 * Returns a staged GIT file with a file path and status.
 	 * 
 	 * @param filePath the path of the file to be getter.
@@ -286,10 +274,58 @@ public class GitRepository {
 	}
 	
 	/**
-	 * Returns the origin of the repository. 
+	 * Performs the GIT clone operation.
+	 * 
+	 * @param directory the directory to clone the remote repository.
+	 * @param uri the remote name of project repository.
+	 * @param branch the branch name of repository to clone.
+	 * @throws GitAPIException 
+	 * @throws TransportException 
+	 * @throws InvalidRemoteException 
 	 */
-	public String getOrigin() {
-		return git.getRepository().getConfig().getString("remote", "origin", "url");
+	public void cloneRepository(String directory, String uri, String branch, GitCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException {
+		CloneCommand clone = Git.cloneRepository();
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+		clone.setDirectory(new File(directory + "/" + this.getRepositoryName(uri)));
+		clone.setURI(uri);
+		clone.setRemote("origin");
+		clone.setCloneAllBranches(true);
+		clone.setCloneSubmodules(true);
+		clone.setBranch("refs/heads/" + branch);
+		clone.call();
+	}
+	
+	/**
+	 * Performs the GIT pull operation.
+	 * @throws GitAPIException 
+	 * @throws TransportException 
+	 * @throws NoHeadException 
+	 * @throws RefNotAdvertisedException 
+	 * @throws RefNotFoundException 
+	 * @throws CanceledException 
+	 * @throws InvalidRemoteException 
+	 * @throws DetachedHeadException 
+	 * @throws InvalidConfigurationException 
+	 * @throws WrongRepositoryStateException 
+	 * @throws IOException 
+	 */
+	public void pull() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException, MergeConflictsException, IOException {
+		PullCommand pull = git.pull();
+		
+		System.out.println(git.getRepository().getConfig().toText());
+		System.out.println("El remoto es = " + git.getRepository().getConfig().getString("remote", "origin", "url"));
+		System.out.println("El branch actual es = " + this.git.getRepository().getFullBranch());
+		
+		this.setCredentialsProvider(pull);
+//		pull.setRemote(this.getOrigin());
+//		pull.setRemoteBranchName(this.getCurrentBranch());
+		pull.call();
+		
+		RepositoryState repositoryState = git.getRepository().getRepositoryState();
+		if (repositoryState == RepositoryState.MERGING) {
+			throw new MergeConflictsException();
+		}
+		
 	}
 
 	/**
@@ -380,97 +416,6 @@ public class GitRepository {
 		this.commitAndPush(message, author, authorEmail, author, authorEmail);
 	}
 
-	/**
-	 * Performs the GIT pull operation.
-	 * @throws GitAPIException 
-	 * @throws TransportException 
-	 * @throws NoHeadException 
-	 * @throws RefNotAdvertisedException 
-	 * @throws RefNotFoundException 
-	 * @throws CanceledException 
-	 * @throws InvalidRemoteException 
-	 * @throws DetachedHeadException 
-	 * @throws InvalidConfigurationException 
-	 * @throws WrongRepositoryStateException 
-	 */
-	public void pull() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException, MergeConflictsException {
-		PullCommand pull = git.pull();
-		this.setCredentialsProvider(pull);
-		pull.call();
-		
-		RepositoryState repositoryState = git.getRepository().getRepositoryState();
-		if (repositoryState == RepositoryState.MERGING) {
-			throw new MergeConflictsException();
-		}
-		
-	}
-	
-	/**
-	 * Performs the GIT pull operation.
-	 * 
-	 * @param remote the remote name of project repository.
-	 * @param branch the branch name of repository to clone.
-	 * @throws GitAPIException 
-	 * @throws TransportException 
-	 * @throws NoHeadException 
-	 * @throws RefNotAdvertisedException 
-	 * @throws RefNotFoundException 
-	 * @throws CanceledException 
-	 * @throws InvalidRemoteException 
-	 * @throws DetachedHeadException 
-	 * @throws InvalidConfigurationException 
-	 * @throws WrongRepositoryStateException 
-	 */
-	public void pull(String remote, String branch) throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException {
-		PullCommand pull = git.pull();
-		this.setCredentialsProvider(pull);
-		pull.setRemote(remote);
-		pull.setRemoteBranchName(branch);
-		pull.call();
-	}
-	
-	/**
-	 * Performs the GIT clone operation.
-	 * 
-	 * @param directory the directory to clone the remote repository.
-	 * @param remote the remote name of project repository.
-	 * @param branch the branch name of repository to clone.
-	 * @throws GitAPIException 
-	 * @throws TransportException 
-	 * @throws InvalidRemoteException 
-	 */
-	public void cloneRepository(String directory, String remote, String branch) throws InvalidRemoteException, TransportException, GitAPIException {
-		CloneCommand clone = Git.cloneRepository();
-		this.setCredentialsProvider(clone);
-		clone.setDirectory(new File(directory + "/" + this.getRepositoryName(remote)));
-		clone.setURI(remote);
-		clone.setBranch(branch);
-		clone.setCloneAllBranches(true);
-		clone.setCloneSubmodules(true);
-		clone.call();
-	}
-	
-	/**
-	 * Performs the GIT clone operation.
-	 * 
-	 * @param directory the directory to clone the remote repository.
-	 * @param remote the remote name of project repository.
-	 * @param branch the branch name of repository to clone.
-	 * @throws GitAPIException 
-	 * @throws TransportException 
-	 * @throws InvalidRemoteException 
-	 */
-	public void cloneRepository(String directory, String remote, String branch, GitCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException {
-		CloneCommand clone = Git.cloneRepository();
-		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
-		clone.setDirectory(new File(directory + "/" + this.getRepositoryName(remote)));
-		clone.setURI(remote);
-		clone.setBranch(branch);
-		clone.setCloneAllBranches(true);
-		clone.setCloneSubmodules(true);
-		clone.call();
-	}
-	
 	@SuppressWarnings("rawtypes")
 	private void setCredentialsProvider(TransportCommand...commands) {
 		GitCredentials credentials;
