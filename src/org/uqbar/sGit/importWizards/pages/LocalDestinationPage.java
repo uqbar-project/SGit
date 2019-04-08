@@ -107,7 +107,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 			branches.select(branches.indexOf(
 					this.getBranchesItems()
 					.stream()
-					.filter(branch -> branch.equals("master")).findFirst().get()));
+					.filter(branch -> branch.equals("master")).findFirst().get())); //$NON-NLS-1$
 		}
 
 		catch (Exception e) {
@@ -161,7 +161,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 
 		directory = new Text(destinationComposite, BORDER | SINGLE);
 		directory.setLayoutData(new GridData(FILL_HORIZONTAL));
-		directory.setText("");
+		directory.setText(""); //$NON-NLS-1$
 		directory.addModifyListener(this);
 
 		browse = new Button(destinationComposite, PUSH);
@@ -277,13 +277,13 @@ public class LocalDestinationPage extends SGitWizardPage {
 
 	private void cloneAndImportRepository() {
 			try {
-				gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName(), new GitCredentials(this.getUsername(), this.getPassword()));
+				gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName(), new GitCredentials(this.getUsername(), this.getPassword())); //$NON-NLS-1$
 				this.importProject();
 			} 
 			
 			catch (Exception e) {
-				view.showErrorDialog("Error al clonar el proyecto", "Hubo un problema al querer clonar el repositorio remoto."
-						+ " Verifique que la direccion del repositorio sea valida o que posea una conexion a internet activa.");
+				view.showErrorDialog(Messages.CloneProjectErrorTitle, Messages.CloneProjectErrorMessage1
+						+ Messages.CloneProjectErrorMessage2);
 			}
 	}
 
@@ -300,10 +300,10 @@ public class LocalDestinationPage extends SGitWizardPage {
 		}
 
 		catch (Exception e) {
-			boolean keep = view.showQuestionDialog("Hubo un problema al querer importar el proyecto", "¿Desea mantener el repositorio clonado localmente?");
+			boolean keep = view.showQuestionDialog(Messages.ImportProjectErrorTitle, Messages.ImportProjectErrorMessage);
 
 			if (!keep) {
-				java.nio.file.Path path = Paths.get(this.getDirectory() + "/git/" + repositoryName);
+				java.nio.file.Path path = Paths.get(this.getDirectory() + "/git/" + repositoryName); //$NON-NLS-1$
 				
 				  try {
 					Files.walk(path)
@@ -313,7 +313,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 				} 
 				  
 				  catch (IOException e1) {
-					  view.showErrorDialog("Error al querer eliminar el directorio =" + path.toUri().toString(), e1.getMessage());
+					  view.showErrorDialog(Messages.DeleteDirectoryErrorMessage + path.toUri().toString(), e1.getMessage());
 					e1.printStackTrace();
 				}
 			}

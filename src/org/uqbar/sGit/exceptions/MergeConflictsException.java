@@ -4,7 +4,7 @@ package org.uqbar.sGit.exceptions;
 public class MergeConflictsException extends SgitException {
 
 	public MergeConflictsException() {
-		super("Existen conflictos entre el repositorio local y el remoto, resuelva los conflictos y realice nuevamente un commit.");
+		super(Messages.MergeConflictsExceptionMessage);
 	}
 
 }

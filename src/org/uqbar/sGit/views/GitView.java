@@ -3,6 +3,7 @@ package org.uqbar.sGit.views;
 import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
 import static org.uqbar.sGit.views.Messages.*;
+import static org.uqbar.sGit.exceptions.Messages.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -63,26 +64,26 @@ public class GitView extends SGitView implements ModifyListener {
 	private Button commitAndPush;
 	
 	private void validateErrorMessage(String message) {
-		if (message.contains("not authorized")) {
-			view.showErrorDialog("Git", new NotAuthorizedException().getMessage());
+		if (message.contains("not authorized")) { //$NON-NLS-1$
+			view.showErrorDialog("Git", new NotAuthorizedException().getMessage()); //$NON-NLS-1$
 		}
 
-		else if (message.contains("cannot open git-receive-pack")) {
-			view.showErrorDialog("Git", new NoConnectionWithRemoteException().getMessage());
+		else if (message.contains("cannot open git-receive-pack")) { //$NON-NLS-1$
+			view.showErrorDialog("Git", new NoConnectionWithRemoteException().getMessage()); //$NON-NLS-1$
 		}
 		
-		else if (message.contains("Existen conflictos entre el repositorio local y el remoto")) {
-			view.showWarningDialog("Git", new MergeConflictsException().getMessage());
+		else if (message.contains(MergeConflictsExceptionMessage)) { //$NON-NLS-1$
+			view.showWarningDialog("Git", new MergeConflictsException().getMessage()); //$NON-NLS-1$
 		}
 		
 		else {
-			view.showErrorDialog("Error", new SgitException(message).getMessage());
+			view.showErrorDialog("Error", new SgitException(message).getMessage()); //$NON-NLS-1$
 		}
 	}
 
 	private Image getImage(String name) {
 		Bundle bundle = FrameworkUtil.getBundle(getClass());
-		URL url = FileLocator.find(bundle, new Path("icons/" + name + ".png"), null);
+		URL url = FileLocator.find(bundle, new Path("icons/" + name + ".png"), null); //$NON-NLS-1$ //$NON-NLS-2$
 		ImageDescriptor imageDesc = ImageDescriptor.createFromURL(url);
 		Image image = imageDesc.createImage();
 		return image;
@@ -143,7 +144,7 @@ public class GitView extends SGitView implements ModifyListener {
 		
 		else {
 			authorCombo.removeAll();
-			commitMessageTexbox.setText("");
+			commitMessageTexbox.setText(""); //$NON-NLS-1$
 		}
 
 	}
@@ -267,7 +268,7 @@ public class GitView extends SGitView implements ModifyListener {
 		unstagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		addItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addItem.setImage(this.getImage("add"));
+		addItem.setImage(this.getImage("add")); //$NON-NLS-1$
 		addItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -287,7 +288,7 @@ public class GitView extends SGitView implements ModifyListener {
 		});
 
 		addAllItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addAllItem.setImage(this.getImage("add_all"));
+		addAllItem.setImage(this.getImage("add_all")); //$NON-NLS-1$
 		addAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -326,7 +327,7 @@ public class GitView extends SGitView implements ModifyListener {
 		stagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		removeItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeItem.setImage(this.getImage("unstage"));
+		removeItem.setImage(this.getImage("unstage")); //$NON-NLS-1$
 		removeItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -346,7 +347,7 @@ public class GitView extends SGitView implements ModifyListener {
 		});
 
 		removeAllItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeAllItem.setImage(this.getImage("unstage_all"));
+		removeAllItem.setImage(this.getImage("unstage_all")); //$NON-NLS-1$
 		removeAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -399,7 +400,7 @@ public class GitView extends SGitView implements ModifyListener {
 		commitAndPush = new Button(commiterButtonsComposite, PUSH);
 		commitAndPush.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		commitAndPush.setText(COMMIT_AND_PUSH_ACTION);
-		commitAndPush.setImage(this.getImage("commitandpush"));
+		commitAndPush.setImage(this.getImage("commitandpush")); //$NON-NLS-1$
 		commitAndPush.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -413,11 +414,11 @@ public class GitView extends SGitView implements ModifyListener {
 				else {
 					NewAuthorDialog dialog = new NewAuthorDialog(null, authorCombo.getText());
 					dialog.open();
-					if (dialog.getName() != "" && dialog.getEmail() != "") {
+					if (dialog.getName() != "" && dialog.getEmail() != "") { //$NON-NLS-1$ //$NON-NLS-2$
 						that.commitAndPush(commitMessageTexbox.getText(), dialog.getName(), dialog.getEmail());
 					}
 				}
-				commitMessageTexbox.setText("");
+				commitMessageTexbox.setText(""); //$NON-NLS-1$
 				that.update();
 				that.view.refreshWorkspace();
 			}
@@ -432,7 +433,7 @@ public class GitView extends SGitView implements ModifyListener {
 		push = new Button(commiterButtonsComposite, PUSH);
 		push.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		push.setText(PUSH_ACTION);
-		push.setImage(this.getImage("push"));
+		push.setImage(this.getImage("push")); //$NON-NLS-1$
 		push.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -452,7 +453,7 @@ public class GitView extends SGitView implements ModifyListener {
 		pull = new Button(commiterButtonsComposite, PUSH);
 		pull.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		pull.setText(PULL_ACTION);
-		pull.setImage(this.getImage("pull"));
+		pull.setImage(this.getImage("pull")); //$NON-NLS-1$
 		pull.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -471,7 +472,7 @@ public class GitView extends SGitView implements ModifyListener {
 
 		commit = new Button(commiterButtonsComposite, PUSH);
 		commit.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		commit.setImage(this.getImage("commit"));
+		commit.setImage(this.getImage("commit")); //$NON-NLS-1$
 		commit.setText(COMMIT_ACTION);
 		commit.addSelectionListener(new SelectionListener() {
 
@@ -486,11 +487,11 @@ public class GitView extends SGitView implements ModifyListener {
 				else {
 					NewAuthorDialog dialog = new NewAuthorDialog(null, authorCombo.getText());
 					dialog.open();
-					if (dialog.getName() != "" && dialog.getEmail() != "") {
+					if (dialog.getName() != "" && dialog.getEmail() != "") { //$NON-NLS-1$ //$NON-NLS-2$
 						that.commit(commitMessageTexbox.getText(), dialog.getName(), dialog.getEmail());
 					}
 				}
-				commitMessageTexbox.setText("");
+				commitMessageTexbox.setText(""); //$NON-NLS-1$
 				that.update();
 				that.view.refreshWorkspace();
 			}

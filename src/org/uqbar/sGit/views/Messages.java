@@ -5,6 +5,8 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.uqbar.sGit.views.messages"; //$NON-NLS-1$
 	public static String UNSTAGED_CHANGES;
+	public static String UPDATE_MESSAGE;
+	public static String UPDATE_TOOLTIP;
 	public static String STAGED_CHANGES;
 	public static String COMMIT_MESSAGE;
 	public static String AUTHOR;

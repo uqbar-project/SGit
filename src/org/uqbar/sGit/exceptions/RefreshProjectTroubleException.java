@@ -4,7 +4,7 @@ package org.uqbar.sGit.exceptions;
 public class RefreshProjectTroubleException extends SgitException {
 
 	public RefreshProjectTroubleException() {
-		super("a problem has occurred when refreshing the current project.");
+		super(Messages.RefreshProjectTroubleExceptionMessage);
 	}
 
 }

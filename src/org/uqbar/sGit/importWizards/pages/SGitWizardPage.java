@@ -26,7 +26,7 @@ public abstract class SGitWizardPage extends WizardPage implements ModifyListene
 	public SGitWizardPage(String pageName) {
 		super(pageName);
 		this.setTitle(pageName);
-		this.setDescription("");
+		this.setDescription(""); //$NON-NLS-1$
 		this.errors = new ArrayList<String>();
 	}
 
@@ -44,7 +44,7 @@ public abstract class SGitWizardPage extends WizardPage implements ModifyListene
 	protected abstract void generateMessageErrors();
 
 	private void showMessageErrors() {
-		this.setErrorMessage(errors.isEmpty() ? null : StringUtils.join(errors, "\n "));
+		this.setErrorMessage(errors.isEmpty() ? null : StringUtils.join(errors, "\n ")); //$NON-NLS-1$
 		errors.clear();
 	}
 
@@ -78,7 +78,7 @@ public abstract class SGitWizardPage extends WizardPage implements ModifyListene
 				// Do nothing.
 			}
 		}
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	protected abstract void onPageInit();

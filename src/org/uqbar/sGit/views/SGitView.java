@@ -59,8 +59,8 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 			}
 		};
 		
-		update.setText("Actualizar");
-		update.setToolTipText("Actualiza el estado la vista.");
+		update.setText(Messages.UPDATE_MESSAGE);
+		update.setToolTipText(Messages.UPDATE_TOOLTIP);
 		update.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
 		bars.getToolBarManager().add(update);
 	}
