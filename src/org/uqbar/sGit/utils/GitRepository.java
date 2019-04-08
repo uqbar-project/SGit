@@ -1,11 +1,13 @@
 package org.uqbar.sGit.utils;
 
-import static org.uqbar.sGit.utils.GitStatus.*;
+import static org.uqbar.sGit.utils.GitStatus.ADDED;
+import static org.uqbar.sGit.utils.GitStatus.CHANGED;
+import static org.uqbar.sGit.utils.GitStatus.MISSING;
+import static org.uqbar.sGit.utils.GitStatus.MODIFIED;
+import static org.uqbar.sGit.utils.GitStatus.REMOVED;
+import static org.uqbar.sGit.utils.GitStatus.UNTRACKED;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.runtime.Path;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
@@ -38,7 +52,6 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
-import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.Constants;
@@ -53,6 +66,10 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.uqbar.sGit.exceptions.MergeConflictsException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class GitRepository {
 
@@ -293,6 +310,25 @@ public class GitRepository {
 		clone.setCloneSubmodules(true);
 		clone.setBranch("refs/heads/" + branch);
 		clone.call();
+
+		String filepath = directory + "/" + this.getRepositoryName(uri) + "/.project";
+
+		Document doc;
+		try {
+			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(filepath));
+			XPath xpath = XPathFactory.newInstance().newXPath();
+			NodeList nodes = (NodeList) xpath.evaluate("//projectDescription/name", doc, XPathConstants.NODESET);
+			for (int idx = 0; idx < nodes.getLength(); idx++) {
+				nodes.item(idx).setTextContent(this.getRepositoryName(uri));
+			}
+			Transformer xformer = TransformerFactory.newInstance().newTransformer();
+			xformer.transform(new DOMSource(doc), new StreamResult(new File(filepath)));
+		}
+
+		catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException | TransformerFactoryConfigurationError | TransformerException e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	/**
@@ -312,16 +348,13 @@ public class GitRepository {
 	public void pull() throws WrongRepositoryStateException, InvalidConfigurationException, DetachedHeadException, InvalidRemoteException, CanceledException, RefNotFoundException, RefNotAdvertisedException, NoHeadException, TransportException, GitAPIException, MergeConflictsException, IOException {
 		PullCommand pull = git.pull();
 		
-		System.out.println(git.getRepository().getConfig().toText());
-		System.out.println("El remoto es = " + git.getRepository().getConfig().getString("remote", "origin", "url"));
-		System.out.println("El branch actual es = " + this.git.getRepository().getFullBranch());
 		
+		
+		Repository repository = git.getRepository();
 		this.setCredentialsProvider(pull);
-//		pull.setRemote(this.getOrigin());
-//		pull.setRemoteBranchName(this.getCurrentBranch());
 		pull.call();
 		
-		RepositoryState repositoryState = git.getRepository().getRepositoryState();
+		RepositoryState repositoryState = repository.getRepositoryState();
 		if (repositoryState == RepositoryState.MERGING) {
 			throw new MergeConflictsException();
 		}
