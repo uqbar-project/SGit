@@ -31,12 +31,12 @@ import org.eclipse.swt.widgets.Text;
 import org.uqbar.sGit.utils.GitCredentials;
 import org.uqbar.sGit.utils.GitRepository;
 import org.uqbar.sGit.utils.SecureStoredCredentials;
-import org.uqbar.sGit.utils.ViewHelper;
+import org.uqbar.sGit.views.Dialogs;
 
 public class LocalDestinationPage extends SGitWizardPage {
 
 	private GitRepository gitRepository;
-	private ViewHelper view = new ViewHelper();
+	private Dialogs view = new Dialogs();
 	private String repositoryName = "project"; //$NON-NLS-1$
 	private Composite destinationComposite;
 	private Composite branchesComposite;

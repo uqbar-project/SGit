@@ -13,14 +13,13 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.uqbar.sGit.utils.GitRepository;
-import org.uqbar.sGit.utils.ViewHelper;
 import org.uqbar.sGit.utils.WorkspaceHelper;
 
 public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 	protected GitRepository gitRepository;
 	protected Composite container;
-	protected ViewHelper view;
+	protected Dialogs view;
 	protected WorkspaceHelper workspace;
 
 	protected abstract void onFocus();
@@ -32,7 +31,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 	@Override
 	public void createPartControl(Composite parent) {
 		this.container = parent;
-		this.view = new ViewHelper();
+		this.view = new Dialogs();
 		this.workspace = new WorkspaceHelper();
 		this.onViewInit();
 		this.workspace.getSelectionService().addSelectionListener(this);

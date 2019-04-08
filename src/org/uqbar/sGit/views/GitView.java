@@ -2,8 +2,8 @@ package org.uqbar.sGit.views;
 
 import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
-import static org.uqbar.sGit.views.Messages.*;
 import static org.uqbar.sGit.exceptions.Messages.*;
+import static org.uqbar.sGit.views.Messages.*;
 
 import java.io.IOException;
 import java.net.URL;
@@ -39,7 +39,7 @@ import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
 import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.GitFile;
-import org.uqbar.sGit.utils.NewAuthorDialog;
+import org.uqbar.sGit.views.Dialogs.NewAuthorDialog;
 
 public class GitView extends SGitView implements ModifyListener {
 

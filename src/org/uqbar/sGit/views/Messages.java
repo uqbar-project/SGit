@@ -14,6 +14,11 @@ public class Messages extends NLS {
 	public static String PULL_ACTION;
 	public static String COMMIT_ACTION;
 	public static String COMMIT_AND_PUSH_ACTION;
+	public static String Dialogs_EMAIL;
+	public static String Dialogs_FIRST_USER_COMMIT;
+	public static String Dialogs_INTERNAL_ERROR;
+	public static String Dialogs_LOAD_NEW_USER_IDENTIFICATION;
+	public static String Dialogs_USERNAME;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
