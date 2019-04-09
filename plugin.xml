@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension point="org.eclipse.ui.importWizards">
+      <wizard
+            id="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
+            name="Importar proyecto Git"
+            class="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
+            category="org.eclipse.egit.ui.internal.clone.gitclonecategory"
+            icon="icons/repo_rep.png">
+         <description>
+         	Import one or more projects from a Git Repository.
+         </description>
+      </wizard>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="org.uqbar.SGit"
+            name="Git">
+      </category>
+      <view
+            category="org.uqbar.SGit"
+            class="org.uqbar.sGit.views.GitView"
+            icon="icons/staging.png"
+            id="org.uqbar.sGit.views.GitView"
+            inject="true"
+            name="Git">
+      </view>
+   </extension>
+
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   
+</plugin>
