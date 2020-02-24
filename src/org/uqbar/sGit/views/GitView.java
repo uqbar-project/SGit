@@ -6,21 +6,16 @@ import static org.uqbar.sGit.exceptions.Messages.*;
 import static org.uqbar.sGit.views.Messages.*;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -32,13 +27,12 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.uqbar.sGit.exceptions.MergeConflictsException;
 import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
 import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.GitFile;
+import org.uqbar.sGit.utils.ImageLocator;
 import org.uqbar.sGit.views.Dialogs.NewAuthorDialog;
 
 public class GitView extends SGitView implements ModifyListener {
@@ -81,17 +75,9 @@ public class GitView extends SGitView implements ModifyListener {
 		}
 	}
 
-	private Image getImage(String name) {
-		Bundle bundle = FrameworkUtil.getBundle(getClass());
-		URL url = FileLocator.find(bundle, new Path("icons/" + name + ".png"), null); //$NON-NLS-1$ //$NON-NLS-2$
-		ImageDescriptor imageDesc = ImageDescriptor.createFromURL(url);
-		Image image = imageDesc.createImage();
-		return image;
-	}
-
 	private void showOnTable(GitFile file, Table table) {
 		TableItem item = new TableItem(table, 0);
-		item.setImage(this.getImage(file.getStatusImageName()));
+		item.setImage(ImageLocator.getImage(file.getStatusImageName(), this));
 		item.setText(file.getFilePath());
 	}
 
@@ -268,7 +254,7 @@ public class GitView extends SGitView implements ModifyListener {
 		unstagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		addItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addItem.setImage(this.getImage("add")); //$NON-NLS-1$
+		addItem.setImage(ImageLocator.getImage("add", this)); //$NON-NLS-1$
 		addItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -288,7 +274,7 @@ public class GitView extends SGitView implements ModifyListener {
 		});
 
 		addAllItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addAllItem.setImage(this.getImage("add_all")); //$NON-NLS-1$
+		addAllItem.setImage(ImageLocator.getImage("add_all", this)); //$NON-NLS-1$
 		addAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -327,7 +313,7 @@ public class GitView extends SGitView implements ModifyListener {
 		stagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		removeItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeItem.setImage(this.getImage("unstage")); //$NON-NLS-1$
+		removeItem.setImage(ImageLocator.getImage("unstage", this)); //$NON-NLS-1$
 		removeItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -347,7 +333,7 @@ public class GitView extends SGitView implements ModifyListener {
 		});
 
 		removeAllItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeAllItem.setImage(this.getImage("unstage_all")); //$NON-NLS-1$
+		removeAllItem.setImage(ImageLocator.getImage("unstage_all", this)); //$NON-NLS-1$
 		removeAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -400,7 +386,7 @@ public class GitView extends SGitView implements ModifyListener {
 		commitAndPush = new Button(commiterButtonsComposite, PUSH);
 		commitAndPush.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		commitAndPush.setText(COMMIT_AND_PUSH_ACTION);
-		commitAndPush.setImage(this.getImage("commitandpush")); //$NON-NLS-1$
+		commitAndPush.setImage(ImageLocator.getImage("commitandpush", this)); //$NON-NLS-1$
 		commitAndPush.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -433,7 +419,7 @@ public class GitView extends SGitView implements ModifyListener {
 		push = new Button(commiterButtonsComposite, PUSH);
 		push.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		push.setText(PUSH_ACTION);
-		push.setImage(this.getImage("push")); //$NON-NLS-1$
+		push.setImage(ImageLocator.getImage("push", this)); //$NON-NLS-1$
 		push.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -453,7 +439,7 @@ public class GitView extends SGitView implements ModifyListener {
 		pull = new Button(commiterButtonsComposite, PUSH);
 		pull.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		pull.setText(PULL_ACTION);
-		pull.setImage(this.getImage("pull")); //$NON-NLS-1$
+		pull.setImage(ImageLocator.getImage("pull", this)); //$NON-NLS-1$
 		pull.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -472,7 +458,7 @@ public class GitView extends SGitView implements ModifyListener {
 
 		commit = new Button(commiterButtonsComposite, PUSH);
 		commit.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		commit.setImage(this.getImage("commit")); //$NON-NLS-1$
+		commit.setImage(ImageLocator.getImage("commit", this)); //$NON-NLS-1$
 		commit.setText(COMMIT_ACTION);
 		commit.addSelectionListener(new SelectionListener() {
 

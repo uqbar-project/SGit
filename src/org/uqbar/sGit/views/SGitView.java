@@ -8,11 +8,10 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.uqbar.sGit.utils.GitRepository;
+import org.uqbar.sGit.utils.ImageLocator;
 import org.uqbar.sGit.utils.WorkspaceHelper;
 
 public abstract class SGitView extends ViewPart implements ISelectionListener {
@@ -38,7 +37,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 		this.makeActions();
 		this.container.pack();
 	}
-	
+
 	@Override
 	public void setFocus() {
 		if (this.container != null) {
@@ -49,7 +48,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 	private void makeActions() {
 		IActionBars bars = getViewSite().getActionBars();
-		
+
 		Action update = new Action() {
 			public void run() {
 				if (container != null && gitRepository != null) {
@@ -57,10 +56,10 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 				}
 			}
 		};
-		
+
 		update.setText(Messages.UPDATE_MESSAGE);
 		update.setToolTipText(Messages.UPDATE_TOOLTIP);
-		update.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+		update.setImageDescriptor(ImageLocator.getImageDescriptor("refresh", this));
 		bars.getToolBarManager().add(update);
 	}
 
@@ -69,7 +68,8 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 		IProject project;
 
 		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
-			// TODO: Should get project from selection element, but i have no idea about make this possible :(
+			// TODO: Should get project from selection element, but i have no
+			// idea about make this possible :(
 		}
 
 		else {
@@ -82,7 +82,8 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 					if (resource != null) {
 						project = resource.getProject();
-						this.gitRepository = new GitRepository(this.workspace.getCurrentWorkspacePath(), project.getName());
+						this.gitRepository = new GitRepository(this.workspace.getCurrentWorkspacePath(),
+								project.getName());
 						this.onUpdate();
 					}
 
