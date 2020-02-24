@@ -10,7 +10,7 @@
             category="org.eclipse.egit.ui.internal.clone.gitclonecategory"
             icon="icons/repo_rep.png">
          <description>
-         	Import one or more projects from a Git Repository.
+         	%IMPORT_GIT_PROJECT_WIZARD_DESCRIPTION
          </description>
       </wizard>
    </extension>
@@ -26,8 +26,7 @@
             class="org.uqbar.sGit.views.GitView"
             icon="icons/staging.png"
             id="org.uqbar.sGit.views.GitView"
-            inject="true"
-            name="Git">
+            name="%SGIT_NAME">
       </view>
    </extension>
 
