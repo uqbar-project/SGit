@@ -5,7 +5,7 @@
    <extension point="org.eclipse.ui.importWizards">
       <wizard
             id="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
-            name="Importar proyecto Git"
+            name="%IMPORT_GIT_PROJECT_WIZARD_NAME"
             class="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
             category="org.eclipse.egit.ui.internal.clone.gitclonecategory"
             icon="icons/repo_rep.png">
