@@ -32,7 +32,7 @@ import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
 import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.GitFile;
-import org.uqbar.sGit.utils.ImageLocator;
+import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.views.Dialogs.NewAuthorDialog;
 
 public class GitView extends SGitView implements ModifyListener {
@@ -77,7 +77,7 @@ public class GitView extends SGitView implements ModifyListener {
 
 	private void showOnTable(GitFile file, Table table) {
 		TableItem item = new TableItem(table, 0);
-		item.setImage(ImageLocator.getImage(file.getStatusImageName(), this));
+		item.setImage(FileLocator.getImage(file.getStatusImageName(), this));
 		item.setText(file.getFilePath());
 	}
 
@@ -254,7 +254,7 @@ public class GitView extends SGitView implements ModifyListener {
 		unstagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		addItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addItem.setImage(ImageLocator.getImage("add", this)); //$NON-NLS-1$
+		addItem.setImage(FileLocator.getImage("add", this)); //$NON-NLS-1$
 		addItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -274,7 +274,7 @@ public class GitView extends SGitView implements ModifyListener {
 		});
 
 		addAllItem = new ToolItem(unstagingActionToolBar, PUSH);
-		addAllItem.setImage(ImageLocator.getImage("add_all", this)); //$NON-NLS-1$
+		addAllItem.setImage(FileLocator.getImage("add_all", this)); //$NON-NLS-1$
 		addAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -313,7 +313,7 @@ public class GitView extends SGitView implements ModifyListener {
 		stagingActionToolBar.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | SEPARATOR_FILL));
 
 		removeItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeItem.setImage(ImageLocator.getImage("unstage", this)); //$NON-NLS-1$
+		removeItem.setImage(FileLocator.getImage("unstage", this)); //$NON-NLS-1$
 		removeItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -333,7 +333,7 @@ public class GitView extends SGitView implements ModifyListener {
 		});
 
 		removeAllItem = new ToolItem(stagingActionToolBar, PUSH);
-		removeAllItem.setImage(ImageLocator.getImage("unstage_all", this)); //$NON-NLS-1$
+		removeAllItem.setImage(FileLocator.getImage("unstage_all", this)); //$NON-NLS-1$
 		removeAllItem.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -386,7 +386,7 @@ public class GitView extends SGitView implements ModifyListener {
 		commitAndPush = new Button(commiterButtonsComposite, PUSH);
 		commitAndPush.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		commitAndPush.setText(COMMIT_AND_PUSH_ACTION);
-		commitAndPush.setImage(ImageLocator.getImage("commitandpush", this)); //$NON-NLS-1$
+		commitAndPush.setImage(FileLocator.getImage("commitandpush", this)); //$NON-NLS-1$
 		commitAndPush.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -419,7 +419,7 @@ public class GitView extends SGitView implements ModifyListener {
 		push = new Button(commiterButtonsComposite, PUSH);
 		push.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		push.setText(PUSH_ACTION);
-		push.setImage(ImageLocator.getImage("push", this)); //$NON-NLS-1$
+		push.setImage(FileLocator.getImage("push", this)); //$NON-NLS-1$
 		push.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -439,7 +439,7 @@ public class GitView extends SGitView implements ModifyListener {
 		pull = new Button(commiterButtonsComposite, PUSH);
 		pull.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
 		pull.setText(PULL_ACTION);
-		pull.setImage(ImageLocator.getImage("pull", this)); //$NON-NLS-1$
+		pull.setImage(FileLocator.getImage("pull", this)); //$NON-NLS-1$
 		pull.addSelectionListener(new SelectionListener() {
 
 			@Override
@@ -458,7 +458,7 @@ public class GitView extends SGitView implements ModifyListener {
 
 		commit = new Button(commiterButtonsComposite, PUSH);
 		commit.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
-		commit.setImage(ImageLocator.getImage("commit", this)); //$NON-NLS-1$
+		commit.setImage(FileLocator.getImage("commit", this)); //$NON-NLS-1$
 		commit.setText(COMMIT_ACTION);
 		commit.addSelectionListener(new SelectionListener() {
 

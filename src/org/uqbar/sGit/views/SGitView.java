@@ -11,7 +11,7 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.uqbar.sGit.utils.GitRepository;
-import org.uqbar.sGit.utils.ImageLocator;
+import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.utils.WorkspaceHelper;
 
 public abstract class SGitView extends ViewPart implements ISelectionListener {
@@ -59,7 +59,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 		update.setText(Messages.UPDATE_MESSAGE);
 		update.setToolTipText(Messages.UPDATE_TOOLTIP);
-		update.setImageDescriptor(ImageLocator.getImageDescriptor("refresh", this));
+		update.setImageDescriptor(FileLocator.getImageDescriptor("refresh", this));
 		bars.getToolBarManager().add(update);
 	}
 
