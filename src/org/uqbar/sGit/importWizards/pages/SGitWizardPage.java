@@ -1,10 +1,5 @@
 package org.uqbar.sGit.importWizards.pages;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,21 +59,6 @@ public abstract class SGitWizardPage extends WizardPage implements ModifyListene
 
 	protected void addPageChangedListener(IPageChangedListener listener) {
 		((WizardDialog) this.getWizard().getContainer()).addPageChangedListener(this);
-	}
-
-	protected String getClipboardContentText() {
-		final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-
-		if (clipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
-			try {
-				return (String) clipboard.getData(DataFlavor.stringFlavor);
-			}
-
-			catch (UnsupportedFlavorException | IOException e) {
-				// Do nothing.
-			}
-		}
-		return ""; //$NON-NLS-1$
 	}
 
 	protected abstract void onPageInit();

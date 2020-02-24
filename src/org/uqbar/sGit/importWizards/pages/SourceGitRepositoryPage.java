@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.uqbar.sGit.utils.Clipboard;
 
 public class SourceGitRepositoryPage extends SGitWizardPage {
 
@@ -46,7 +47,7 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 	public Boolean hasValidGitURIFormat(String path) {
 		return path.startsWith("https://") && path.endsWith(".git"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	private void createLocationComposite(Composite parent) {
 		final Composite container = new Composite(parent, NULL);
 		final GridLayout location = new GridLayout();
@@ -164,9 +165,8 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 
 	@Override
 	protected void onPageShow() {
-		if (hasValidGitURIFormat(this.getClipboardContentText())) {
-			uri.setText(this.getClipboardContentText());
-		}
+		String clipboardContent = Clipboard.getContent();
+		uri.setText(hasValidGitURIFormat(clipboardContent) ? clipboardContent : "");
 	}
 
 	@Override
