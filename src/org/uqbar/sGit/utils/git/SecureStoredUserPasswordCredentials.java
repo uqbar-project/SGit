@@ -7,9 +7,6 @@ public class SecureStoredUserPasswordCredentials extends UserPasswordCredentials
 	private final static String DEFAULT_VALUE = "";
 	private final static SecureStore secureStore = SecureStore.getInstance();
 
-	/**
-	 * Creates a new secure empty Credentials.
-	 */
 	public SecureStoredUserPasswordCredentials() {
 		super(secureStore.getOrDefault("credentials", "user", DEFAULT_VALUE),
 				secureStore.getOrDefault("credentials", "password", DEFAULT_VALUE));
