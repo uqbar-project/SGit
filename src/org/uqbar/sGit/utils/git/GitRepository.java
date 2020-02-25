@@ -66,7 +66,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.uqbar.sGit.exceptions.MergeConflictsException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
-import org.uqbar.sGit.utils.CrendentialsDialog;
+import org.uqbar.sGit.views.CrendentialsDialog;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;

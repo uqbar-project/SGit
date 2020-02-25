@@ -1,4 +1,4 @@
-package org.uqbar.sGit.utils;
+package org.uqbar.sGit.views;
 
 import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
@@ -7,6 +7,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.uqbar.sGit.importWizards.pages.Messages;
+import org.uqbar.sGit.utils.SecureStore;
 import org.uqbar.sGit.utils.git.UserPasswordCredentials;
 import org.eclipse.jface.dialogs.Dialog;
 

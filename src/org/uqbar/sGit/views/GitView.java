@@ -56,7 +56,7 @@ public class GitView extends SGitView implements ModifyListener {
 	private Button pull;
 	private Button push;
 	private Button commitAndPush;
-	
+
 	private void validateErrorMessage(String message) {
 		if (message.contains("not authorized")) { //$NON-NLS-1$
 			view.showErrorDialog("Git", new NotAuthorizedException().getMessage()); //$NON-NLS-1$
@@ -65,11 +65,11 @@ public class GitView extends SGitView implements ModifyListener {
 		else if (message.contains("cannot open git-receive-pack")) { //$NON-NLS-1$
 			view.showErrorDialog("Git", new NoConnectionWithRemoteException().getMessage()); //$NON-NLS-1$
 		}
-		
-		else if (message.contains(MergeConflictsExceptionMessage)) { //$NON-NLS-1$
+
+		else if (message.contains(MergeConflictsExceptionMessage)) { // $NON-NLS-1$
 			view.showWarningDialog("Git", new MergeConflictsException().getMessage()); //$NON-NLS-1$
 		}
-		
+
 		else {
 			view.showErrorDialog("Error", new SgitException(message).getMessage()); //$NON-NLS-1$
 		}
@@ -111,23 +111,24 @@ public class GitView extends SGitView implements ModifyListener {
 	 * Updates committer box state.
 	 */
 	private void updateCommitDetailsState() {
-		if(gitRepository != null) {
-			Set<String> authorsName = gitRepository.getAuthors().stream().map(PersonIdent::getName).collect(Collectors.toSet());
+		if (gitRepository != null) {
+			Set<String> authorsName = gitRepository.getAuthors().stream().map(PersonIdent::getName)
+					.collect(Collectors.toSet());
 			authorCombo.setItems(authorsName.toArray(new String[0]));
-		
+
 			try {
 				if (authorCombo.getItemCount() > 0) {
 					authorCombo.select(authorCombo.indexOf(gitRepository.getLastAuthor().getName()));
 				}
-			} 
-			
+			}
+
 			catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
-		
+
 		else {
 			authorCombo.removeAll();
 			commitMessageTexbox.setText(""); //$NON-NLS-1$
@@ -141,8 +142,8 @@ public class GitView extends SGitView implements ModifyListener {
 	private void add(String filePath) {
 		try {
 			gitRepository.addFileToStaging(filePath);
-		} 
-		
+		}
+
 		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
@@ -161,8 +162,8 @@ public class GitView extends SGitView implements ModifyListener {
 	private void remove(String filePath) {
 		try {
 			gitRepository.removeFileFromStaging(filePath);
-		} 
-		
+		}
+
 		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
@@ -178,22 +179,22 @@ public class GitView extends SGitView implements ModifyListener {
 	/**
 	 * Perform a Git commit Action.
 	 * 
-	 * @param message: The commit message.
-	 * @param author: The author name.
-	 * @param email: the author email.
-	 * @param committer name.
+	 * @param message:       The commit message.
+	 * @param author:        The author name.
+	 * @param email:         the author email.
+	 * @param committer      name.
 	 * @param committerEmail the committer email.
 	 */
 	private void commit(String message, String author, String email) {
 		try {
 			gitRepository.commit(message, author, email);
-		} 
-		
+		}
+
 		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Perform a Git push Action.
 	 */
@@ -206,7 +207,7 @@ public class GitView extends SGitView implements ModifyListener {
 			this.validateErrorMessage(e.getMessage());
 		}
 	}
-	
+
 	private void commitAndPush(String message, String author, String authorEmail) {
 		try {
 			gitRepository.commitAndPush(message, author, authorEmail);
@@ -223,8 +224,8 @@ public class GitView extends SGitView implements ModifyListener {
 	private void pull() {
 		try {
 			gitRepository.pull();
-		} 
-		
+		}
+
 		catch (Exception e) {
 			this.validateErrorMessage(e.getMessage());
 		}
@@ -391,12 +392,13 @@ public class GitView extends SGitView implements ModifyListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				PersonIdent author = gitRepository.getAuthors().stream().filter(a -> a.getName().equals(authorCombo.getText())).findFirst().orElse(null);
-				
-				if(author != null){
+				PersonIdent author = gitRepository.getAuthors().stream()
+						.filter(a -> a.getName().equals(authorCombo.getText())).findFirst().orElse(null);
+
+				if (author != null) {
 					that.commitAndPush(commitMessageTexbox.getText(), author.getName(), author.getEmailAddress());
 				}
-				
+
 				else {
 					NewAuthorDialog dialog = new NewAuthorDialog(null, authorCombo.getText());
 					dialog.open();
@@ -405,7 +407,7 @@ public class GitView extends SGitView implements ModifyListener {
 					}
 				}
 				commitMessageTexbox.setText(""); //$NON-NLS-1$
-				that.update();
+				that.updateView();
 				that.view.refreshWorkspace();
 			}
 
@@ -425,7 +427,7 @@ public class GitView extends SGitView implements ModifyListener {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				that.push();
-				that.update();
+				that.updateView();
 				that.view.refreshWorkspace();
 			}
 
@@ -445,7 +447,7 @@ public class GitView extends SGitView implements ModifyListener {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				that.pull();
-				that.update();
+				that.updateView();
 				that.view.refreshWorkspace();
 			}
 
@@ -464,12 +466,13 @@ public class GitView extends SGitView implements ModifyListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				PersonIdent author = gitRepository.getAuthors().stream().filter(a -> a.getName().equals(authorCombo.getText())).findFirst().orElse(null);
-				
-				if(author != null){
+				PersonIdent author = gitRepository.getAuthors().stream()
+						.filter(a -> a.getName().equals(authorCombo.getText())).findFirst().orElse(null);
+
+				if (author != null) {
 					that.commit(commitMessageTexbox.getText(), author.getName(), author.getEmailAddress());
 				}
-				
+
 				else {
 					NewAuthorDialog dialog = new NewAuthorDialog(null, authorCombo.getText());
 					dialog.open();
@@ -478,7 +481,7 @@ public class GitView extends SGitView implements ModifyListener {
 					}
 				}
 				commitMessageTexbox.setText(""); //$NON-NLS-1$
-				that.update();
+				that.updateView();
 				that.view.refreshWorkspace();
 			}
 
@@ -488,7 +491,7 @@ public class GitView extends SGitView implements ModifyListener {
 			}
 
 		});
-		
+
 		this.disableStagingArea();
 		this.disableCommitterArea();
 		this.disableCommitButton();
@@ -496,38 +499,13 @@ public class GitView extends SGitView implements ModifyListener {
 		this.disablePushButton();
 		this.disableCommitAndPushButton();
 	}
-	
-	protected void update() {
+
+	protected void updateView() {
 		this.updateStagingState();
 		this.updateCommitDetailsState();
 	}
 
-	@Override
-	protected void onFocus() {
-		if (gitRepository != null) {
-			this.update();
-		}
-	}
-
-	@Override
-	protected void onUpdate() {
-		if(this.isRepositoryAlreadyInitializated()) {
-			this.update();
-			this.enableStagingArea();
-			this.enableCommitterArea();
-			this.enablePullButton();
-			this.enablePushButton();
-		}
-		
-		else {
-			this.disableStagingArea();
-			this.disableCommitterArea();
-			this.disablePullButton();
-			this.disablePushButton();
-		}
-	}
-	
-	private boolean isRepositoryAlreadyInitializated(){
+	private boolean isRepositoryAlreadyInitializated() {
 		return this.gitRepository != null;
 	}
 
@@ -538,7 +516,7 @@ public class GitView extends SGitView implements ModifyListener {
 	private void enableCommitButton() {
 		this.commit.setEnabled(true);
 	}
-	
+
 	private void disableCommitAndPushButton() {
 		this.commitAndPush.setEnabled(false);
 	}
@@ -546,7 +524,7 @@ public class GitView extends SGitView implements ModifyListener {
 	private void enableCommitAndPushButton() {
 		this.commitAndPush.setEnabled(true);
 	}
-	
+
 	private void disablePullButton() {
 		this.pull.setEnabled(false);
 	}
@@ -554,7 +532,7 @@ public class GitView extends SGitView implements ModifyListener {
 	private void enablePullButton() {
 		this.pull.setEnabled(true);
 	}
-	
+
 	private void disablePushButton() {
 		this.push.setEnabled(false);
 	}
@@ -562,7 +540,7 @@ public class GitView extends SGitView implements ModifyListener {
 	private void enablePushButton() {
 		this.push.setEnabled(true);
 	}
-	
+
 	private void disableStagingArea() {
 		this.addItem.setEnabled(false);
 		this.addAllItem.setEnabled(false);
@@ -576,7 +554,7 @@ public class GitView extends SGitView implements ModifyListener {
 		this.removeItem.setEnabled(true);
 		this.removeAllItem.setEnabled(true);
 	}
-	
+
 	private void disableCommitterArea() {
 		this.commitMessageTexbox.setEnabled(false);
 		this.authorCombo.setEnabled(false);
@@ -588,24 +566,54 @@ public class GitView extends SGitView implements ModifyListener {
 	}
 
 	private boolean canMakeACommit() {
-		return this.isRepositoryAlreadyInitializated() && this.stagedFiles.getItemCount() > 0 && this.commitMessageTexbox.getText().length() > 0;
+		return this.isRepositoryAlreadyInitializated() && this.stagedFiles.getItemCount() > 0
+				&& this.commitMessageTexbox.getText().length() > 0;
 	}
-	
-	private void enableCommitIfCanMakeACommit(){
+
+	private void enableCommitIfCanMakeACommit() {
 		if (this.canMakeACommit()) {
 			this.enableCommitButton();
 			this.enableCommitAndPushButton();
 		}
-		
+
 		else {
 			this.disableCommitButton();
 			this.disableCommitAndPushButton();
 		}
 	}
-	
+
+	@Override
+	protected void onFocus() {
+		
+	}
+
+	@Override
+	protected void onUpdate() {
+		if (this.isRepositoryAlreadyInitializated()) {
+			this.updateView();
+			this.enableStagingArea();
+			this.enableCommitterArea();
+			this.enablePullButton();
+			this.enablePushButton();
+		}
+
+		else {
+			this.disableStagingArea();
+			this.disableCommitterArea();
+			this.disablePullButton();
+			this.disablePushButton();
+		}
+	}
+
 	@Override
 	public void modifyText(ModifyEvent e) {
 		this.enableCommitIfCanMakeACommit();
+	}
+
+	@Override
+	protected void onViewClean() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
