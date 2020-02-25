@@ -453,7 +453,6 @@ public class GitRepository {
 		UserPasswordCredentials credentials;
 		List<TransportCommand> commandlist = Arrays.asList(commands);
 		credentials = new SecureStoredUserPasswordCredentials();
-//				SecureStoredUserPasswordCredentials.getInstance().retrieve();
 		
 		if (!credentials.isEmpty()) {
 			for (TransportCommand command : commandlist) {
