@@ -6,7 +6,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.uqbar.sGit.utils.WorkspaceHelper;
@@ -33,7 +36,6 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 	}
 
 	public void clean() {
-		System.out.println("cleaned");
 		this.onViewClean();
 	}
 
@@ -60,18 +62,24 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 		// idea about make this possible :(
 	}
 
-	private void onActiveEditorItemSelection() {
-		IProject project = ((IResource) this.workspace.getActiveEditorInput().getAdapter(IResource.class)).getProject();
+	private void onActiveEditorItemSelection(IWorkbenchPage activePage) {
+		IEditorPart activeEditor = activePage.getActiveEditor();
 
-		if (project != null) {
-			this.gitRepository = new GitRepository(this.workspace.getCurrentWorkspacePath(), project.getName());
-			this.refresh.run();
+		if (activeEditor != null) {
+			IEditorInput input = activeEditor.getEditorInput();
+
+			IProject project = (IProject) input.getAdapter(IProject.class);
+			if (project == null) {
+				IResource resource = (IResource) input.getAdapter(IResource.class);
+				if (resource != null) {
+					project = resource.getProject();
+					String path = project.getLocation().toOSString();
+					this.gitRepository = new GitRepository(path);
+					this.refresh.run();
+				}
+			}
 		}
 	}
-
-//	private void onNotActiveSelections() {
-//		this.clean();
-//	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -95,7 +103,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 		else {
 
 			if (this.workspaceHaveAnActiveEditor()) {
-				this.onActiveEditorItemSelection();
+				this.onActiveEditorItemSelection(part.getSite().getWorkbenchWindow().getActivePage());
 			}
 
 		}

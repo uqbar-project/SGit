@@ -91,10 +91,6 @@ public class GitRepository {
 		}
 	}
 	
-	public GitRepository(String workspacePath, String projectName) {
-		this(workspacePath + "/git/" + projectName);
-	}
-	
 	/**
 	 *	Returns a GIT staged files list.
 	 */
