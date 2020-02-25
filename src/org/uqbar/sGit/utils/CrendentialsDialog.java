@@ -7,13 +7,13 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.uqbar.sGit.importWizards.pages.Messages;
-
+import org.uqbar.sGit.utils.git.UserPasswordCredentials;
 import org.eclipse.jface.dialogs.Dialog;
 
 public class CrendentialsDialog extends Dialog {
 	private Text usernameText;
 	private Text passwordText;
-	private String username = "";
+	private String user = "";
 	private String password = "";
 	private Button secureCheckbox;
 
@@ -76,7 +76,7 @@ public class CrendentialsDialog extends Dialog {
 
 	@Override
 	protected Point getInitialSize() {
-		return new Point(400, 200);
+		return new Point(600, 400);
 	}
 	
 	public Boolean isSecureStoreEnable() {
@@ -85,16 +85,18 @@ public class CrendentialsDialog extends Dialog {
 
 	@Override
 	protected void okPressed() {
-		username = usernameText.getText();
+		user = usernameText.getText();
 		password = passwordText.getText();
 		if (this.isSecureStoreEnable()) {
-			SecureStoredCredentials.getInstance().secure(username, password);
+			SecureStore secureStore = SecureStore.getInstance();
+			secureStore.secure("credentials", "user", user);
+			secureStore.secure("credentials", "password", password);
 		}
 		super.okPressed();
 	}
 	
-	public GitCredentials getCredentials(){
-		return new GitCredentials(username, password);
+	public UserPasswordCredentials getCredentials(){
+		return new UserPasswordCredentials(user, password);
 	}
 
 }

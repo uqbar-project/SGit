@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.uqbar.sGit.utils.Clipboard;
-import org.uqbar.sGit.utils.GitUrlChecker;
+import org.uqbar.sGit.utils.git.GitUrlChecker;
 
 public class SourceGitRepositoryPage extends SGitWizardPage {
 

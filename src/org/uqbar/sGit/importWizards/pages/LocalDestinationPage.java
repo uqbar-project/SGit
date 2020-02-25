@@ -4,6 +4,7 @@ import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,6 +16,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -28,9 +30,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.uqbar.sGit.utils.GitCredentials;
-import org.uqbar.sGit.utils.GitRepository;
-import org.uqbar.sGit.utils.SecureStoredCredentials;
+import org.uqbar.sGit.utils.SecureStore;
+import org.uqbar.sGit.utils.git.GitRepository;
+import org.uqbar.sGit.utils.git.SecureStoredUserPasswordCredentials;
+import org.uqbar.sGit.utils.git.UserPasswordCredentials;
 import org.uqbar.sGit.views.Dialogs;
 
 public class LocalDestinationPage extends SGitWizardPage {
@@ -96,14 +99,27 @@ public class LocalDestinationPage extends SGitWizardPage {
 	public String getRepositoryName() {
 		return repositoryName;
 	}
+	
+	private String getErrorMessage(Exception e) {
+		if (e.getMessage().endsWith(": cannot open git-upload-pack")) { //$NON-NLS-1$
+			return Messages.ErrorMessage_0;
+		}
+		if (e.getMessage().endsWith(": not authorized")) { //$NON-NLS-1$
+			return Messages.ErrorMessage_4;
+		}
+		if (e.getMessage().startsWith("Failed to read project description file from location ")) { //$NON-NLS-1$
+			return Messages.ErrorMessage_1 + this.getDirectory() + "/git/" + this.getRepositoryName() + Messages.ErrorMessage_3; //$NON-NLS-1$
+		}
+		return e.getMessage();
+	}
 
 	private void updateDescriptionWithReposityName() {
 		this.setDescription(Messages.LOCAL_DESTINATION_PAGE_TITLE + this.getRepositoryName());
 	}
-
+	
 	private void fetchBranchesFromRemote() {
 		try {
-			branches.setItems(gitRepository.getBranches(this.getUri(), new GitCredentials(this.getUsername(), this.getPassword())));
+			branches.setItems(gitRepository.getBranches(this.getUri(), new UserPasswordCredentials(this.getUsername(), this.getPassword())));
 			branches.select(branches.indexOf(
 					this.getBranchesItems()
 					.stream()
@@ -111,7 +127,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 		}
 
 		catch (Exception e) {
-			this.addMessageError(e.getMessage());
+			this.addMessageError(this.getErrorMessage(e));
 			this.setAllCompositeEnabled(false);
 			this.setPageComplete(false);
 		}
@@ -119,7 +135,11 @@ public class LocalDestinationPage extends SGitWizardPage {
 	}
 
 	protected Boolean directoryHasAValidPath() {
-		File path = new File(directory.getText());
+		return this.directoryHasAValidPath(this.getDirectory());
+	}
+
+	protected Boolean directoryHasAValidPath(String directory) {
+		File path = new File(directory);
 		return path != null && path.isDirectory();
 	}
 
@@ -251,7 +271,9 @@ public class LocalDestinationPage extends SGitWizardPage {
 	}
 	
 	private void secureCrendentials(String user, String password) {
-		SecureStoredCredentials.getInstance().secure(user, password);
+		SecureStore secureStore = SecureStore.getInstance();
+		secureStore.secure("credentials", "user", user); //$NON-NLS-1$ //$NON-NLS-2$
+		secureStore.secure("credentials", "password", password); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
@@ -260,6 +282,62 @@ public class LocalDestinationPage extends SGitWizardPage {
 		this.createBranchesComposite(container);
 	}
 
+	private void showCloneErrorDialog(String message) {
+		view.showErrorDialog(Messages.CloneProjectErrorTitle, message);
+	}
+	
+	private void showImportErrorDialog(String message) {
+		boolean keep = view.showQuestionDialog(Messages.ImportProjectErrorTitle, message + "\n \n" + Messages.ImportProjectErrorMessage); //$NON-NLS-1$
+		if (!keep) {
+			java.nio.file.Path path = Paths.get(this.getDirectory() + "/git/" + repositoryName); //$NON-NLS-1$
+
+			try {
+				Files.walk(path).sorted(Comparator.reverseOrder()).map(java.nio.file.Path::toFile).forEach(File::delete);
+			}
+
+			catch (IOException e) {
+				view.showErrorDialog(Messages.DeleteDirectoryErrorMessage + path.toUri().toString(), Messages.ErrorMessage_5);
+			}
+		}
+	}
+
+	private void importProject() {
+		try {
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			final Path path = new Path(this.getDirectory() + "/git/" + repositoryName + "/.project"); //$NON-NLS-1$ //$NON-NLS-2$
+			final IProjectDescription description = workspace.loadProjectDescription(path);
+			final IProject project = workspace.getRoot().getProject(description.getName());
+			final IProgressMonitor monitor = new NullProgressMonitor();
+
+			project.create(description, monitor);
+			project.open(monitor);
+		}
+
+		catch (CoreException e) {
+			if(this.directoryHasAValidPath(this.getDirectory() + "/git/" + this.getRepositoryName())) {
+				this.showImportErrorDialog(this.getErrorMessage(e));
+			}
+		}
+
+	}
+	
+	private void cloneProject() {
+		try {
+			UserPasswordCredentials credentials = this.isSecureStoreEnable() ? new SecureStoredUserPasswordCredentials(): new UserPasswordCredentials(this.getUsername(), this.getPassword());
+			gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName(), credentials); //$NON-NLS-1$
+		}
+		
+		catch (FileNotFoundException e) {
+			// Do nothing. Throwing .project file not found is not necessary.
+			// Clone will be done successfully.
+			// .project file will be validated on import project step.
+		}
+		
+		catch (Exception e) {
+			this.showCloneErrorDialog(this.getErrorMessage(e));
+		}
+	}
+	
 	@Override
 	protected void onPageShow() {
 		gitRepository = new GitRepository();
@@ -275,57 +353,13 @@ public class LocalDestinationPage extends SGitWizardPage {
 		this.fetchBranchesFromRemote();
 	}
 
-	private void cloneAndImportRepository() {
-			try {
-				gitRepository.cloneRepository(this.getDirectory() + "/git", this.getUri(), this.getSelectedBranchName(), new GitCredentials(this.getUsername(), this.getPassword())); //$NON-NLS-1$
-				this.importProject();
-			} 
-			
-			catch (Exception e) {
-				view.showErrorDialog(Messages.CloneProjectErrorTitle, Messages.CloneProjectErrorMessage1
-						+ Messages.CloneProjectErrorMessage2);
-			}
-	}
-
-	private void importProject() {
-		try {
-			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			final Path path = new Path(this.getDirectory() + "/git/" + repositoryName + "/.project"); //$NON-NLS-1$ //$NON-NLS-2$
-			final IProjectDescription description = workspace.loadProjectDescription(path);
-			final IProject project = workspace.getRoot().getProject(description.getName());
-			final IProgressMonitor monitor = new NullProgressMonitor();
-
-			project.create(description, monitor);
-			project.open(monitor);
-		}
-
-		catch (Exception e) {
-			boolean keep = view.showQuestionDialog(Messages.ImportProjectErrorTitle, Messages.ImportProjectErrorMessage);
-
-			if (!keep) {
-				java.nio.file.Path path = Paths.get(this.getDirectory() + "/git/" + repositoryName); //$NON-NLS-1$
-				
-				  try {
-					Files.walk(path)
-					    .sorted(Comparator.reverseOrder())
-					    .map(java.nio.file.Path::toFile)
-					    .forEach(File::delete);
-				} 
-				  
-				  catch (IOException e1) {
-					  view.showErrorDialog(Messages.DeleteDirectoryErrorMessage + path.toUri().toString(), e1.getMessage());
-					e1.printStackTrace();
-				}
-			}
-		}
-	}
-	
 	@Override
 	protected void onPageFinish() {
 		if (this.isSecureStoreEnable()) {
 			this.secureCrendentials(this.getUsername(), this.getPassword());
 		}
-		this.cloneAndImportRepository();
+		this.cloneProject();
+		this.importProject();
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.uqbar.sGit.utils;
+package org.uqbar.sGit.utils.git;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

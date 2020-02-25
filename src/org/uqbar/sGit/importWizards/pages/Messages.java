@@ -18,6 +18,11 @@ public class Messages extends NLS {
 	public static String ERROR_ENTER_USERNAME;
 	public static String ERROR_ENTER_USERNAME_AND_PASSWORD;
 	public static String ERROR_ENTER_VALID_GIT_URI;
+	public static String ErrorMessage_0;
+	public static String ErrorMessage_1;
+	public static String ErrorMessage_3;
+	public static String ErrorMessage_4;
+	public static String ErrorMessage_5;
 	public static String ImportProjectErrorMessage;
 	public static String ImportProjectErrorTitle;
 	public static String INITIAL_BRANCH;

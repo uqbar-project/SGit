@@ -10,9 +10,9 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
-import org.uqbar.sGit.utils.GitRepository;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.utils.WorkspaceHelper;
+import org.uqbar.sGit.utils.git.GitRepository;
 
 public abstract class SGitView extends ViewPart implements ISelectionListener {
 

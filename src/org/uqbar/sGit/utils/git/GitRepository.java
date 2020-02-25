@@ -1,11 +1,11 @@
-package org.uqbar.sGit.utils;
+package org.uqbar.sGit.utils.git;
 
-import static org.uqbar.sGit.utils.GitStatus.ADDED;
-import static org.uqbar.sGit.utils.GitStatus.CHANGED;
-import static org.uqbar.sGit.utils.GitStatus.MISSING;
-import static org.uqbar.sGit.utils.GitStatus.MODIFIED;
-import static org.uqbar.sGit.utils.GitStatus.REMOVED;
-import static org.uqbar.sGit.utils.GitStatus.UNTRACKED;
+import static org.uqbar.sGit.utils.git.GitStatus.ADDED;
+import static org.uqbar.sGit.utils.git.GitStatus.CHANGED;
+import static org.uqbar.sGit.utils.git.GitStatus.MISSING;
+import static org.uqbar.sGit.utils.git.GitStatus.MODIFIED;
+import static org.uqbar.sGit.utils.git.GitStatus.REMOVED;
+import static org.uqbar.sGit.utils.git.GitStatus.UNTRACKED;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,6 +66,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.uqbar.sGit.exceptions.MergeConflictsException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
+import org.uqbar.sGit.utils.CrendentialsDialog;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -283,10 +284,10 @@ public class GitRepository {
 	/**
 	 * Returns a array of all branches on this repository. 
 	 */
-	public String[] getBranches(String remote, GitCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException {
+	public String[] getBranches(String remote, UserPasswordCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException {
 		LsRemoteCommand lsRemoteRepository = Git.lsRemoteRepository();
 		lsRemoteRepository.setRemote(remote).setHeads(true);
-		lsRemoteRepository.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+		lsRemoteRepository.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUser(), credentials.getPassword()));
 		return lsRemoteRepository.call().stream().map(this::getReferenceName).toArray(String[]::new);
 	}
 	
@@ -299,10 +300,11 @@ public class GitRepository {
 	 * @throws GitAPIException 
 	 * @throws TransportException 
 	 * @throws InvalidRemoteException 
+	 * @throws IOException 
 	 */
-	public void cloneRepository(String directory, String uri, String branch, GitCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException {
+	public void cloneRepository(String directory, String uri, String branch, UserPasswordCredentials credentials) throws InvalidRemoteException, TransportException, GitAPIException, IOException {
 		CloneCommand clone = Git.cloneRepository();
-		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUser(), credentials.getPassword()));
 		clone.setDirectory(new File(directory + "/" + this.getRepositoryName(uri)));
 		clone.setURI(uri);
 		clone.setRemote("origin");
@@ -314,6 +316,7 @@ public class GitRepository {
 		String filepath = directory + "/" + this.getRepositoryName(uri) + "/.project";
 
 		Document doc;
+		
 		try {
 			doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(filepath));
 			XPath xpath = XPathFactory.newInstance().newXPath();
@@ -325,7 +328,7 @@ public class GitRepository {
 			xformer.transform(new DOMSource(doc), new StreamResult(new File(filepath)));
 		}
 
-		catch (SAXException | IOException | ParserConfigurationException | XPathExpressionException | TransformerFactoryConfigurationError | TransformerException e) {
+		catch (SAXException | ParserConfigurationException | XPathExpressionException | TransformerFactoryConfigurationError | TransformerException e) {
 			e.printStackTrace();
 		}
 
@@ -451,13 +454,14 @@ public class GitRepository {
 
 	@SuppressWarnings("rawtypes")
 	private void setCredentialsProvider(TransportCommand...commands) {
-		GitCredentials credentials;
+		UserPasswordCredentials credentials;
 		List<TransportCommand> commandlist = Arrays.asList(commands);
-		credentials = SecureStoredCredentials.getInstance().retrieve();
+		credentials = new SecureStoredUserPasswordCredentials();
+//				SecureStoredUserPasswordCredentials.getInstance().retrieve();
 		
 		if (!credentials.isEmpty()) {
 			for (TransportCommand command : commandlist) {
-				command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+				command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUser(), credentials.getPassword()));
 			}
 		}
 		
@@ -468,7 +472,7 @@ public class GitRepository {
 			
 			if(!credentials.isEmpty()){
 				for (TransportCommand command : commandlist) {
-					command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUsername(), credentials.getPassword()));
+					command.setCredentialsProvider(new UsernamePasswordCredentialsProvider(credentials.getUser(), credentials.getPassword()));
 				}
 			}
 			

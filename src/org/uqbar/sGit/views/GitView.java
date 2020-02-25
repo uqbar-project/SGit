@@ -31,8 +31,8 @@ import org.uqbar.sGit.exceptions.MergeConflictsException;
 import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
 import org.uqbar.sGit.exceptions.SgitException;
-import org.uqbar.sGit.utils.GitFile;
 import org.uqbar.sGit.utils.FileLocator;
+import org.uqbar.sGit.utils.git.GitFile;
 import org.uqbar.sGit.views.Dialogs.NewAuthorDialog;
 
 public class GitView extends SGitView implements ModifyListener {
