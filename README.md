@@ -1,7 +1,7 @@
 ![SGit](https://github.com/uqbar-project/SGit/blob/developer/icons/logo.png)
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/uqbar-project/SGit.svg/issues)
-![help wanted](https://badgen.net/github/label-issues/uqbar-project/SGit/help-wanted/open)
+![help wanted](https://img.shields.io/github/issues/uqbar-project/SGit/help%20wanted.svg)
 ![open issues](https://badgen.net/github/open-issues/uqbar-project/SGit)
 
 ## Getting Started
