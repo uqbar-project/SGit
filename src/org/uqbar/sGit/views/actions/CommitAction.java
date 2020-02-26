@@ -5,6 +5,7 @@ import java.io.File;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.uqbar.sGit.exceptions.CommitActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.views.SGitView;
 
@@ -21,7 +22,8 @@ public class CommitAction extends GitAction {
 		this.setImageDescriptor(FileLocator.getImageDescriptor("commit", this));
 	}
 
-	public void setCommitDetails(String message, String author, String authorEmail, String committer, String committerEmail) {
+	public void setCommitDetails(String message, String author, String authorEmail, String committer,
+			String committerEmail) {
 		this.message = message;
 		this.author = author;
 		this.authorEmail = authorEmail;
@@ -48,8 +50,8 @@ public class CommitAction extends GitAction {
 				commit.call();
 			}
 
-			catch (Exception e) {
-				// need a way to show errors.
+			catch (Exception exception) {
+				this.exceptionHandler.accept(new CommitActionFailedException(exception.getMessage()));
 			}
 
 		}

@@ -6,6 +6,8 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.uqbar.sGit.exceptions.MergeConflictsException;
+import org.uqbar.sGit.exceptions.PullActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.views.SGitView;
 
@@ -30,8 +32,12 @@ public class PullAction extends GitAction {
 				this.validateMerginState(repository);
 			}
 
-			catch (Exception e) {
-				// need a way to show errors.
+			catch (MergeConflictsException exception) {
+				this.exceptionHandler.accept(exception);
+			}
+
+			catch (Exception exception) {
+				this.exceptionHandler.accept(new PullActionFailedException(exception.getMessage()));
 			}
 
 		}

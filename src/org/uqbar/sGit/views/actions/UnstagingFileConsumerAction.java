@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.utils.git.GitFile;
 import org.uqbar.sGit.views.SGitView;
@@ -36,8 +37,8 @@ public class UnstagingFileConsumerAction extends GitAction {
 				this.getUnstagedFiles().stream().forEach(this.consumer::accept);
 			}
 
-			catch (Exception e) {
-				// need a way to show errors.
+			catch (Exception exception) {
+				this.exceptionHandler.accept(new SgitException(exception.getMessage()));
 			}
 
 		}

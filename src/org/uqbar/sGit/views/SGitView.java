@@ -14,13 +14,13 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.uqbar.sGit.utils.WorkspaceHelper;
-import org.uqbar.sGit.views.actions.AddAction;
+import org.uqbar.sGit.views.actions.StageFileAction;
 import org.uqbar.sGit.views.actions.CommitAction;
 import org.uqbar.sGit.views.actions.PersonIdentConsumerAction;
 import org.uqbar.sGit.views.actions.PullAction;
 import org.uqbar.sGit.views.actions.PushAction;
 import org.uqbar.sGit.views.actions.RefreshAction;
-import org.uqbar.sGit.views.actions.RemoveAction;
+import org.uqbar.sGit.views.actions.UnstageFileAction;
 import org.uqbar.sGit.views.actions.StagingFileConsumerAction;
 import org.uqbar.sGit.views.actions.UnstagingFileConsumerAction;
 
@@ -32,14 +32,14 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 	protected Composite container;
 	protected Dialogs view;
 	protected WorkspaceHelper workspace;
-	protected AddAction addAction;
 	protected CommitAction commitAction;
 	protected PullAction pullAction;
 	protected PushAction pushAction;
 	protected PersonIdentConsumerAction personIdentConsumerAction;
 	protected RefreshAction refreshAction;
-	protected RemoveAction removeAction;
+	protected StageFileAction stageFileAction;
 	protected StagingFileConsumerAction staginFileConsumerAction;
+	protected UnstageFileAction unstageFileAction;
 	protected UnstagingFileConsumerAction unstaginFileConsumerAction;
 
 	public boolean isAlreadyInitialized() {
@@ -70,13 +70,13 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 	}
 
 	private void makeActions() {
-		this.addAction = new AddAction(this);
+		this.stageFileAction = new StageFileAction(this);
 		this.commitAction = new CommitAction(this);
 		this.personIdentConsumerAction = new PersonIdentConsumerAction(this);
 		this.pullAction = new PullAction(this);
 		this.pushAction = new PushAction(this);
 		this.refreshAction = new RefreshAction(this);
-		this.removeAction = new RemoveAction(this);
+		this.unstageFileAction = new UnstageFileAction(this);
 		this.staginFileConsumerAction = new StagingFileConsumerAction(this);
 		this.unstaginFileConsumerAction = new UnstagingFileConsumerAction(this);
 

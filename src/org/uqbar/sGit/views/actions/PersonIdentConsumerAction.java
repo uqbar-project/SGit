@@ -8,6 +8,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.views.SGitView;
 
@@ -47,11 +48,10 @@ public class PersonIdentConsumerAction extends GitAction {
 						this.consumer.accept(commit.getAuthorIdent());
 					}
 				}
-
 			}
 
-			catch (Exception e) {
-				// need a way to show errors.
+			catch (Exception exception) {
+				this.exceptionHandler.accept(new SgitException(exception.getMessage()));
 			}
 
 		}

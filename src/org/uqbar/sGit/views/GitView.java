@@ -1,9 +1,28 @@
 package org.uqbar.sGit.views;
 
-import static org.eclipse.swt.SWT.*;
-import static org.eclipse.swt.layout.GridData.*;
-import static org.uqbar.sGit.exceptions.Messages.*;
-import static org.uqbar.sGit.views.Messages.*;
+import static org.eclipse.swt.SWT.BORDER;
+import static org.eclipse.swt.SWT.DROP_DOWN;
+import static org.eclipse.swt.SWT.HORIZONTAL;
+import static org.eclipse.swt.SWT.H_SCROLL;
+import static org.eclipse.swt.SWT.MULTI;
+import static org.eclipse.swt.SWT.NULL;
+import static org.eclipse.swt.SWT.PUSH;
+import static org.eclipse.swt.SWT.RIGHT_TO_LEFT;
+import static org.eclipse.swt.SWT.SEPARATOR_FILL;
+import static org.eclipse.swt.SWT.VERTICAL;
+import static org.eclipse.swt.SWT.V_SCROLL;
+import static org.eclipse.swt.SWT.WRAP;
+import static org.eclipse.swt.layout.GridData.FILL_BOTH;
+import static org.eclipse.swt.layout.GridData.FILL_HORIZONTAL;
+import static org.eclipse.swt.layout.GridData.HORIZONTAL_ALIGN_FILL;
+import static org.uqbar.sGit.views.Messages.AUTHOR;
+import static org.uqbar.sGit.views.Messages.COMMIT_ACTION;
+import static org.uqbar.sGit.views.Messages.COMMIT_AND_PUSH_ACTION;
+import static org.uqbar.sGit.views.Messages.COMMIT_MESSAGE;
+import static org.uqbar.sGit.views.Messages.PULL_ACTION;
+import static org.uqbar.sGit.views.Messages.PUSH_ACTION;
+import static org.uqbar.sGit.views.Messages.STAGED_CHANGES;
+import static org.uqbar.sGit.views.Messages.UNSTAGED_CHANGES;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -52,24 +71,6 @@ public class GitView extends SGitView implements ModifyListener {
 	private Button pull;
 	private Button push;
 	private Button commitAndPush;
-
-//	private void validateErrorMessage(String message) {
-//		if (message.contains("not authorized")) { //$NON-NLS-1$
-//			view.showErrorDialog("Git", new NotAuthorizedException().getMessage()); //$NON-NLS-1$
-//		}
-//
-//		else if (message.contains("cannot open git-receive-pack")) { //$NON-NLS-1$
-//			view.showErrorDialog("Git", new NoConnectionWithRemoteException().getMessage()); //$NON-NLS-1$
-//		}
-//
-//		else if (message.contains(MergeConflictsExceptionMessage)) { // $NON-NLS-1$
-//			view.showWarningDialog("Git", new MergeConflictsException().getMessage()); //$NON-NLS-1$
-//		}
-//
-//		else {
-//			view.showErrorDialog("Error", new SgitException(message).getMessage()); //$NON-NLS-1$
-//		}
-//	}
 
 	private void showOnTable(GitFile file, Table table) {
 		TableItem item = new TableItem(table, 0);
@@ -131,37 +132,38 @@ public class GitView extends SGitView implements ModifyListener {
 	/**
 	 * Perform git add to staging Action.
 	 */
-	private void add(String filePath) {
-		this.addAction.setFilePath(filePath);
-		this.addAction.run();
+	private void stage(String filePath) {
+		this.stageFileAction.setFilePath(filePath);
+		this.stageFileAction.run();
 	}
 
 	/**
 	 * Perform git add all to staging Action.
 	 */
-	private void addAll() {
-		Arrays.asList(unstagedFiles.getItems()).stream().forEach(item -> this.add(item.getText()));
+	private void stageAll() {
+		Arrays.asList(unstagedFiles.getItems()).stream().forEach(item -> this.stage(item.getText()));
 	}
 
 	/**
 	 * Perform git remove from staging Action.
 	 */
-	private void remove(String filePath) {
-		this.removeAction.setFilePath(filePath);
-		this.removeAction.run();
+	private void unstage(String filePath) {
+		this.unstageFileAction.setFilePath(filePath);
+		this.unstageFileAction.run();
 	}
 
 	/**
 	 * Perform git remove all from staging Action.
 	 */
-	private void removeAll() {
-		Arrays.asList(stagedFiles.getItems()).stream().forEach(item -> this.remove(item.getText()));
+	private void unstageAll() {
+		Arrays.asList(stagedFiles.getItems()).stream().forEach(item -> this.unstage(item.getText()));
 	}
 
 	/**
 	 * Perform a Git commit Action.
 	 */
 	private void commit(String message, String author, String email) {
+		this.commitAction.setExceptionHandler((exception) -> view.showErrorDialog("Commit Action", exception.getMessage())); //$NON-NLS-1$
 		this.commitAction.setCommitDetails(message, author, email, author, email);
 		this.commitAction.run();
 	}
@@ -170,6 +172,7 @@ public class GitView extends SGitView implements ModifyListener {
 	 * Perform a Git push Action.
 	 */
 	private void push() {
+		this.pushAction.setExceptionHandler((exception) -> view.showErrorDialog("Push Action", exception.getMessage())); //$NON-NLS-1$
 		this.pushAction.run();
 	}
 
@@ -177,6 +180,7 @@ public class GitView extends SGitView implements ModifyListener {
 	 * Perform a Git pull Action.
 	 */
 	private void pull() {
+		this.pullAction.setExceptionHandler((exception) -> view.showErrorDialog("Pull Action", exception.getMessage())); //$NON-NLS-1$
 		this.pullAction.run();
 	}
 
@@ -210,7 +214,7 @@ public class GitView extends SGitView implements ModifyListener {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (unstagedFiles.getSelectionIndex() >= 0) {
-					Arrays.asList(unstagedFiles.getSelection()).stream().forEach(item -> that.add(item.getText()));
+					Arrays.asList(unstagedFiles.getSelection()).stream().forEach(item -> that.stage(item.getText()));
 					that.updateStagingState();
 					that.enableCommitIfCanMakeACommit();
 				}
@@ -229,7 +233,7 @@ public class GitView extends SGitView implements ModifyListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				that.addAll();
+				that.stageAll();
 				that.updateStagingState();
 				that.enableCommitIfCanMakeACommit();
 			}
@@ -269,7 +273,7 @@ public class GitView extends SGitView implements ModifyListener {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (stagedFiles.getSelectionIndex() >= 0) {
-					Arrays.asList(stagedFiles.getSelection()).stream().forEach(item -> that.remove(item.getText()));
+					Arrays.asList(stagedFiles.getSelection()).stream().forEach(item -> that.unstage(item.getText()));
 					that.updateStagingState();
 					that.enableCommitIfCanMakeACommit();
 				}
@@ -288,7 +292,7 @@ public class GitView extends SGitView implements ModifyListener {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				that.removeAll();
+				that.unstageAll();
 				that.updateStagingState();
 				that.enableCommitIfCanMakeACommit();
 			}

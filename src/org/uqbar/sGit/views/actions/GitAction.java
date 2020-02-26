@@ -5,6 +5,7 @@ import static org.uqbar.sGit.utils.git.GitStatus.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jgit.api.Git;
@@ -17,6 +18,7 @@ import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.uqbar.sGit.exceptions.MergeConflictsException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
+import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.git.GitFile;
 import org.uqbar.sGit.utils.git.SecureStoredUserPasswordCredentials;
 import org.uqbar.sGit.utils.git.UserPasswordCredentials;
@@ -27,53 +29,36 @@ public abstract class GitAction extends Action {
 
 	protected final SGitView view;
 	protected Git git;
+	protected Consumer<SgitException> exceptionHandler;
 
 	public GitAction(SGitView view) {
 		this.view = view;
 	}
 
-	public List<GitFile> getStagedFiles() {
+	public List<GitFile> getStagedFiles() throws NoWorkTreeException, GitAPIException {
 		ArrayList<GitFile> stagedChanges = new ArrayList<GitFile>();
-
-		try {
-			Status status = this.git.status().call();
-			status.getAdded().stream().forEach(file -> stagedChanges.add(new GitFile(ADDED, file)));
-			status.getChanged().stream().forEach(file -> stagedChanges.add(new GitFile(CHANGED, file)));
-			status.getRemoved().stream().forEach(file -> stagedChanges.add(new GitFile(REMOVED, file)));
-		}
-
-		catch (NoWorkTreeException | GitAPIException e) {
-			// TODO: Needs a Validation.
-			e.printStackTrace();
-		}
-
+		Status status = this.git.status().call();
+		status.getAdded().stream().forEach(file -> stagedChanges.add(new GitFile(ADDED, file)));
+		status.getChanged().stream().forEach(file -> stagedChanges.add(new GitFile(CHANGED, file)));
+		status.getRemoved().stream().forEach(file -> stagedChanges.add(new GitFile(REMOVED, file)));
 		return stagedChanges;
 	}
 
-	public List<GitFile> getUnstagedFiles() {
+	public List<GitFile> getUnstagedFiles() throws NoWorkTreeException, GitAPIException {
 		ArrayList<GitFile> unstagedChanges = new ArrayList<GitFile>();
-
-		try {
-			Status status = this.git.status().call();
-			status.getConflicting().stream().forEach(file -> unstagedChanges.add(new GitFile(MODIFIED, file)));
-			status.getMissing().stream().forEach(file -> unstagedChanges.add(new GitFile(MISSING, file)));
-			status.getModified().stream().forEach(file -> unstagedChanges.add(new GitFile(MODIFIED, file)));
-			status.getUntracked().stream().forEach(file -> unstagedChanges.add(new GitFile(UNTRACKED, file)));
-		}
-
-		catch (NoWorkTreeException | GitAPIException e) {
-			// TODO: Needs a Validation.
-			e.printStackTrace();
-		}
-
+		Status status = this.git.status().call();
+		status.getConflicting().stream().forEach(file -> unstagedChanges.add(new GitFile(MODIFIED, file)));
+		status.getMissing().stream().forEach(file -> unstagedChanges.add(new GitFile(MISSING, file)));
+		status.getModified().stream().forEach(file -> unstagedChanges.add(new GitFile(MODIFIED, file)));
+		status.getUntracked().stream().forEach(file -> unstagedChanges.add(new GitFile(UNTRACKED, file)));
 		return unstagedChanges;
 	}
 
-	protected GitFile getStagedFile(String filePath) {
+	protected GitFile getStagedFile(String filePath) throws NoWorkTreeException, GitAPIException {
 		return this.getStagedFiles().stream().filter(file -> file.getFilePath().equals(filePath)).findFirst().get();
 	}
 
-	protected GitFile getUnstagedFile(String filePath) {
+	protected GitFile getUnstagedFile(String filePath) throws NoWorkTreeException, GitAPIException {
 		return this.getUnstagedFiles().stream().filter(file -> file.getFilePath().equals(filePath)).findFirst().get();
 	}
 
@@ -124,6 +109,10 @@ public abstract class GitAction extends Action {
 		if (repositoryState == RepositoryState.MERGING) {
 			throw new MergeConflictsException();
 		}
+	}
+
+	public void setExceptionHandler(Consumer<SgitException> handler) {
+		this.exceptionHandler = handler;
 	}
 
 	@Override

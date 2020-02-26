@@ -4,14 +4,15 @@ import java.io.File;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.uqbar.sGit.exceptions.StageFileActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.views.SGitView;
 
-public class AddAction extends GitAction {
+public class StageFileAction extends GitAction {
 
 	private String filePath = "";
 
-	public AddAction(SGitView view) {
+	public StageFileAction(SGitView view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("add", this));
 	}
@@ -44,8 +45,8 @@ public class AddAction extends GitAction {
 				}
 			}
 
-			catch (Exception e) {
-				// need a way to show errors.
+			catch (Exception exception) {
+				this.exceptionHandler.accept(new StageFileActionFailedException(exception.getMessage()));
 			}
 
 		}

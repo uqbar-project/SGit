@@ -2,6 +2,7 @@ package org.uqbar.sGit.importWizards.pages;
 
 import static org.eclipse.swt.SWT.*;
 import static org.eclipse.swt.layout.GridData.*;
+import static org.uqbar.sGit.importWizards.pages.Messages.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +35,7 @@ import org.uqbar.sGit.exceptions.FailedToReadProjectDescriptionFileException;
 import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
 import org.uqbar.sGit.exceptions.ProjectAlreadyExistsException;
+import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.SecureStore;
 import org.uqbar.sGit.utils.git.GitRepositoryUtils;
 import org.uqbar.sGit.utils.git.SecureStoredUserPasswordCredentials;
@@ -53,7 +55,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 	private Combo branches;
 
 	public LocalDestinationPage(String pageName) {
-		super(pageName, Messages.LOCAL_DESTINATION_PAGE_TITLE);
+		super(pageName, LOCAL_DESTINATION_PAGE_TITLE);
 	}
 
 	public List<String> getBranchesItems() {
@@ -104,24 +106,24 @@ public class LocalDestinationPage extends SGitWizardPage {
 		return repositoryName;
 	}
 
-	private void throwCustomException(Exception e) throws Exception {
-		if (e.getMessage().endsWith(": cannot open git-upload-pack")) { //$NON-NLS-1$
+	private void throwCustomException(Exception exception) throws Exception {
+		if (exception.getMessage().endsWith(": cannot open git-upload-pack")) { //$NON-NLS-1$
 			throw new NoConnectionWithRemoteException();
 		}
-		if (e.getMessage().startsWith("Destination path") && e.getMessage().endsWith("already exists and is not an empty directory")) { //$NON-NLS-1$ //$NON-NLS-2$
+		if (exception.getMessage().startsWith("Destination path") && exception.getMessage().endsWith("already exists and is not an empty directory")) { //$NON-NLS-1$ //$NON-NLS-2$
 			throw new ProjectAlreadyExistsException(this.getDirectory(), this.getRepositoryName());
 		}
-		if (e.getMessage().startsWith("Failed to read project description file from location ")) { //$NON-NLS-1$
+		if (exception.getMessage().startsWith("Failed to read project description file from location ")) { //$NON-NLS-1$
 			throw new FailedToReadProjectDescriptionFileException(this.getDirectory(), this.getRepositoryName());
 		}
-		if (e.getMessage().endsWith(": not authorized")) { //$NON-NLS-1$
+		if (exception.getMessage().endsWith(": not authorized")) { //$NON-NLS-1$
 			throw new NotAuthorizedException();
 		}
-		throw e;
+		throw new SgitException(exception.getMessage());
 	}
 
 	private void updateDescriptionWithReposityName() {
-		this.setDescription(Messages.LOCAL_DESTINATION_PAGE_TITLE + this.getRepositoryName());
+		this.setDescription(LOCAL_DESTINATION_PAGE_TITLE + this.getRepositoryName());
 	}
 
 	private void fetchBranchesFromRemote() {
@@ -174,20 +176,20 @@ public class LocalDestinationPage extends SGitWizardPage {
 		final GridData destinationGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		destinationGridData.horizontalSpan = 3;
 		destinationLabel.setLayoutData(destinationGridData);
-		destinationLabel.setText(Messages.DESTINATION);
+		destinationLabel.setText(DESTINATION);
 
 		defaultDirectoryCheckbox = new Button(destinationComposite, CHECK);
 		final GridData defaultDirectoryCheckboxGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		defaultDirectoryCheckboxGridData.horizontalSpan = 3;
 		defaultDirectoryCheckbox.setLayoutData(defaultDirectoryCheckboxGridData);
-		defaultDirectoryCheckbox.setText(Messages.USE_DEFAULT_LOCATION);
+		defaultDirectoryCheckbox.setText(USE_DEFAULT_LOCATION);
 		defaultDirectoryCheckbox.setSelection(true);
 
 		final Label directoryLabel = new Label(destinationComposite, PUSH);
 		final GridData directoryGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		directoryGridData.horizontalSpan = 1;
 		directoryLabel.setLayoutData(directoryGridData);
-		directoryLabel.setText(Messages.DIRECTORY);
+		directoryLabel.setText(DIRECTORY);
 
 		directory = new Text(destinationComposite, BORDER | SINGLE);
 		directory.setLayoutData(new GridData(FILL_HORIZONTAL));
@@ -198,7 +200,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 		final GridData browseGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		browseGridData.horizontalSpan = 1;
 		browse.setLayoutData(browseGridData);
-		browse.setText(Messages.BROWSE);
+		browse.setText(BROWSE);
 
 		defaultDirectoryCheckbox.addSelectionListener(new SelectionListener() {
 
@@ -257,13 +259,13 @@ public class LocalDestinationPage extends SGitWizardPage {
 		final GridData branchesGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		branchesGridData.horizontalSpan = 3;
 		branchesLabel.setLayoutData(branchesGridData);
-		branchesLabel.setText(Messages.BRANCHES);
+		branchesLabel.setText(BRANCHES);
 
 		final Label initialBranchLabel = new Label(branchesComposite, PUSH);
 		final GridData initialBranchGridData = new GridData(HORIZONTAL_ALIGN_FILL);
 		initialBranchGridData.horizontalSpan = 1;
 		initialBranchLabel.setLayoutData(initialBranchGridData);
-		initialBranchLabel.setText(Messages.INITIAL_BRANCH);
+		initialBranchLabel.setText(INITIAL_BRANCH);
 
 		branches = new Combo(branchesComposite, DROP_DOWN | READ_ONLY);
 		final GridData branchsGridData = new GridData(FILL_HORIZONTAL);
@@ -278,7 +280,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 	@Override
 	protected void generateMessageErrors() {
 		if (!(this.directoryHasAValidPath())) {
-			this.addMessageError(Messages.ENTER_VALID_DIRECTORY + this.getRepositoryName());
+			this.addMessageError(ENTER_VALID_DIRECTORY + this.getRepositoryName());
 		}
 	}
 
@@ -295,11 +297,11 @@ public class LocalDestinationPage extends SGitWizardPage {
 	}
 
 	private void showCloneErrorDialog(String message) {
-		view.showErrorDialog(Messages.CloneProjectErrorTitle, message);
+		view.showErrorDialog(CloneProjectErrorTitle, message);
 	}
 
 	private void showRemoveClonedRepositoryQuestionDialog(String message) {
-		boolean keep = view.showQuestionDialog(Messages.ImportProjectErrorTitle, message + "\n \n" + Messages.ImportProjectErrorMessage); //$NON-NLS-1$
+		boolean keep = view.showQuestionDialog(ImportProjectErrorTitle, message + "\n \n" + ImportProjectErrorMessage); //$NON-NLS-1$
 		
 		if (!keep) {
 			java.nio.file.Path path = Paths.get(this.getDirectory() + "/git/" + repositoryName); //$NON-NLS-1$
@@ -309,7 +311,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 			}
 
 			catch (IOException e) {
-				view.showErrorDialog(Messages.DeleteDirectoryErrorMessage + path.toUri().toString(), Messages.ErrorMessage_5);
+				view.showErrorDialog(DeleteDirectoryErrorMessage + path.toUri().toString(), ErrorMessage_5);
 			}
 		}
 	}
