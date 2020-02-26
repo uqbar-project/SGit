@@ -23,18 +23,11 @@
       </category>
       <view
             category="org.uqbar.SGit"
-            class="org.uqbar.sGit.views.GitView"
+            class="org.uqbar.sGit.views.SGitView"
             icon="icons/staging.png"
             id="org.uqbar.sGit.views.GitView"
             name="%SGIT_NAME">
       </view>
-   </extension>
-
-   <extension
-         point="org.eclipse.help.contexts">
-      <contexts
-            file="contexts.xml">
-      </contexts>
    </extension>
    
 </plugin>
