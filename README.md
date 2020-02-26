@@ -47,6 +47,6 @@ There are many ways in which you can participate in the project, for example:
 
 Licensed under the [GNU General Public License v3.0](https://github.com/uqbar-project/SGit/blob/developer/LICENSE) license.
   
-#### Authors
+## Authors
 
 * **Lucas Alan Silvestri ([51lv3str1](https://github.com/51lv3str1)) - [silvestrilucas@gmail.com](mailto:silvestrilucas@gmail.com)** - [Uqbar Project](https://github.com/uqbar-project) 
