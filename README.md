@@ -2,8 +2,7 @@
 ![help wanted](https://badgen.net/github/label-issues/uqbar-project/SGit/help-wanted/open)
 ![open issues](https://badgen.net/github/open-issues/uqbar-project/SGit)
 
-# SGit
-Simplified but elegant git plugin for Eclipse.
+![SGit](https://github.com/uqbar-project/SGit/blob/developer/icons/logo.png)
 
 ## Getting Started
 
