@@ -1,6 +1,9 @@
 package org.uqbar.sGit;
 
+import java.util.Optional;
+
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ResourceLocator;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -41,14 +44,13 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns an image descriptor for the image file at the given plug-in
-	 * relative path
+	 * Returns an image descriptor for the image file at the given plug-in relative
+	 * path.
 	 *
-	 * @param path
-	 *            the path
+	 * @param path the path
 	 * @return the image descriptor
 	 */
-	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	public static Optional<ImageDescriptor> getImageDescriptor(String path) {
+		return ResourceLocator.imageDescriptorFromBundle(PLUGIN_ID, path);
 	}
 }
