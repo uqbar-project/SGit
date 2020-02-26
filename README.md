@@ -24,7 +24,7 @@ SGit is available for both Eclipse and Wollok.
 * Stage an Unstage files from staging area.
 * Commit, Commit and Push, Pull, Push.
 * Automerging support.
-* Wollok IDE Support by default.
+* Wollok IDE integration by default.
 
 #### Built With
 
