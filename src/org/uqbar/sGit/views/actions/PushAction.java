@@ -7,11 +7,11 @@ import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.uqbar.sGit.exceptions.PushActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public class PushAction extends GitAction {
 
-	public PushAction(SGitView view) {
+	public PushAction(View view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("push", this));
 	}
@@ -25,6 +25,8 @@ public class PushAction extends GitAction {
 				this.git = Git.wrap(new FileRepositoryBuilder().setGitDir(new File(uri + "/.git")).build());
 				PushCommand push = this.git.push();
 				this.setCredentialsProvider(push);
+				push.call();
+
 			}
 
 			catch (Exception exception) {
