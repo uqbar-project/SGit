@@ -39,7 +39,7 @@ There are many ways in which you can participate in the project, for example:
 * [Submit bugs and feature requests](https://github.com/uqbar-project/SGit/issues), and help us verify as they are checked in.
 * Review [source code changes](https://github.com/uqbar-project/SGit/pulls).
 
-## Feedback
+#### Feedback
 
 * [File an issue](https://github.com/uqbar-project/SGit/issues).
 
