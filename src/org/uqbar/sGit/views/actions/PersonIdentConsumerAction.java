@@ -10,13 +10,13 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.FileLocator;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public class PersonIdentConsumerAction extends GitAction {
 
 	private Consumer<PersonIdent> consumer;
 
-	public PersonIdentConsumerAction(SGitView view) {
+	public PersonIdentConsumerAction(View view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("refresh", this));
 	}

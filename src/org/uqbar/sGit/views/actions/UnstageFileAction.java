@@ -7,13 +7,13 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.uqbar.sGit.exceptions.UnstageFileActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public class UnstageFileAction extends GitAction {
 
 	private String filePath = "";
 
-	public UnstageFileAction(SGitView view) {
+	public UnstageFileAction(View view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("unstage", this));
 	}

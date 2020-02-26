@@ -6,13 +6,13 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.uqbar.sGit.exceptions.StageFileActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public class StageFileAction extends GitAction {
 
 	private String filePath = "";
 
-	public StageFileAction(SGitView view) {
+	public StageFileAction(View view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("add", this));
 	}

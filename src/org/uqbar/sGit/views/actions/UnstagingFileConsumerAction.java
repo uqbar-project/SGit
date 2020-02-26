@@ -8,13 +8,13 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.utils.git.GitFile;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public class UnstagingFileConsumerAction extends GitAction {
 
 	private Consumer<GitFile> consumer;
 
-	public UnstagingFileConsumerAction(SGitView view) {
+	public UnstagingFileConsumerAction(View view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("refresh", this));
 	}

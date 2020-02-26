@@ -7,7 +7,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.uqbar.sGit.exceptions.CommitActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public class CommitAction extends GitAction {
 
@@ -17,7 +17,7 @@ public class CommitAction extends GitAction {
 	private String committer = "";
 	private String committerEmail = "";
 
-	public CommitAction(SGitView view) {
+	public CommitAction(View view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("commit", this));
 	}

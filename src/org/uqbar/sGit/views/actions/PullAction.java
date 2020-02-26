@@ -9,11 +9,11 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.uqbar.sGit.exceptions.MergeConflictsException;
 import org.uqbar.sGit.exceptions.PullActionFailedException;
 import org.uqbar.sGit.utils.FileLocator;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public class PullAction extends GitAction {
 
-	public PullAction(SGitView view) {
+	public PullAction(View view) {
 		super(view);
 		this.setImageDescriptor(FileLocator.getImageDescriptor("pull", this));
 	}

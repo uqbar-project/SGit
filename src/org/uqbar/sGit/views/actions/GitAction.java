@@ -23,15 +23,15 @@ import org.uqbar.sGit.utils.git.GitFile;
 import org.uqbar.sGit.utils.git.SecureStoredUserPasswordCredentials;
 import org.uqbar.sGit.utils.git.UserPasswordCredentials;
 import org.uqbar.sGit.views.CrendentialsDialog;
-import org.uqbar.sGit.views.SGitView;
+import org.uqbar.sGit.views.View;
 
 public abstract class GitAction extends Action {
 
-	protected final SGitView view;
+	protected final View view;
 	protected Git git;
 	protected Consumer<SgitException> exceptionHandler;
 
-	public GitAction(SGitView view) {
+	public GitAction(View view) {
 		this.view = view;
 	}
 
