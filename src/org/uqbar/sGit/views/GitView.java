@@ -27,10 +27,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-import org.uqbar.sGit.exceptions.MergeConflictsException;
-import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
-import org.uqbar.sGit.exceptions.NotAuthorizedException;
-import org.uqbar.sGit.exceptions.SgitException;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.utils.git.GitFile;
 import org.uqbar.sGit.views.Dialogs.NewAuthorDialog;
@@ -330,6 +326,15 @@ public class GitView extends SGitView implements ModifyListener {
 		authorComboComboGridData.horizontalSpan = 2;
 		authorCombo.setLayoutData(authorComboComboGridData);
 		authorCombo.setItems(new String[] {});
+		
+		authorCombo.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				that.enableCommitIfCanMakeACommit();
+				
+			}
+		});
 
 		Composite commiterButtonsComposite = new Composite(commiterContainer, RIGHT_TO_LEFT);
 		final GridLayout commiterButtonsCompositeLayout = new GridLayout();
@@ -519,7 +524,7 @@ public class GitView extends SGitView implements ModifyListener {
 	}
 
 	private boolean canMakeACommit() {
-		return this.stagedFiles.getItemCount() > 0 && this.commitMessageTexbox.getText().length() > 0;
+		return !this.authorCombo.getText().isEmpty() && this.stagedFiles.getItemCount() > 0 && this.commitMessageTexbox.getText().length() > 0;
 	}
 
 	private void enableCommitIfCanMakeACommit() {
@@ -564,7 +569,6 @@ public class GitView extends SGitView implements ModifyListener {
 
 	@Override
 	protected void onViewClean() {
-		// TODO Auto-generated method stub
 		
 	}
 
