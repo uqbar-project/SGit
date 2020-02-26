@@ -2,6 +2,7 @@ package org.uqbar.sGit.views;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
@@ -13,17 +14,33 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.uqbar.sGit.utils.WorkspaceHelper;
-import org.uqbar.sGit.utils.git.GitRepository;
+import org.uqbar.sGit.views.actions.AddAction;
+import org.uqbar.sGit.views.actions.CommitAction;
+import org.uqbar.sGit.views.actions.PersonIdentConsumerAction;
+import org.uqbar.sGit.views.actions.PullAction;
+import org.uqbar.sGit.views.actions.PushAction;
 import org.uqbar.sGit.views.actions.RefreshAction;
+import org.uqbar.sGit.views.actions.RemoveAction;
+import org.uqbar.sGit.views.actions.StagingFileConsumerAction;
+import org.uqbar.sGit.views.actions.UnstagingFileConsumerAction;
 
 public abstract class SGitView extends ViewPart implements ISelectionListener {
 
-	protected GitRepository gitRepository;
+	private IActionBars actionBar;
+	private IProject project;
+	protected Boolean isActive = false;
 	protected Composite container;
 	protected Dialogs view;
 	protected WorkspaceHelper workspace;
-	private IActionBars actionBar;
-	private RefreshAction refresh;
+	protected AddAction addAction;
+	protected CommitAction commitAction;
+	protected PullAction pullAction;
+	protected PushAction pushAction;
+	protected PersonIdentConsumerAction personIdentConsumerAction;
+	protected RefreshAction refreshAction;
+	protected RemoveAction removeAction;
+	protected StagingFileConsumerAction staginFileConsumerAction;
+	protected UnstagingFileConsumerAction unstaginFileConsumerAction;
 
 	public boolean isAlreadyInitialized() {
 		return this.container != null;
@@ -48,18 +65,39 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 
 	}
 
+	public IProject getProject() {
+		return this.project;
+	}
+
 	private void makeActions() {
-		this.refresh = new RefreshAction(this);
-		this.actionBar.getToolBarManager().add(this.refresh);
+		this.addAction = new AddAction(this);
+		this.commitAction = new CommitAction(this);
+		this.personIdentConsumerAction = new PersonIdentConsumerAction(this);
+		this.pullAction = new PullAction(this);
+		this.pushAction = new PushAction(this);
+		this.refreshAction = new RefreshAction(this);
+		this.removeAction = new RemoveAction(this);
+		this.staginFileConsumerAction = new StagingFileConsumerAction(this);
+		this.unstaginFileConsumerAction = new UnstagingFileConsumerAction(this);
+
+		this.actionBar.getToolBarManager().add(this.refreshAction);
 	}
 
 	private Boolean workspaceHaveAnActiveEditor() {
 		return this.workspace.getActiveEditor() != null;
 	}
 
-	private void onProjectTreeItemSelection() {
-		// TODO: Should get project from selection element, but i have no
-		// idea about make this possible :(
+	private void onProjectTreeItemSelection(IStructuredSelection selection) {
+		this.project = (IProject) Platform.getAdapterManager().getAdapter(selection.getFirstElement(), IProject.class);
+
+		if (this.project != null) {
+			this.isActive = true;
+			this.refreshAction.run();
+		}
+
+		else {
+			this.isActive = false;
+		}
 	}
 
 	private void onActiveEditorItemSelection(IWorkbenchPage activePage) {
@@ -68,17 +106,28 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 		if (activeEditor != null) {
 			IEditorInput input = activeEditor.getEditorInput();
 
-			IProject project = (IProject) input.getAdapter(IProject.class);
+			this.project = (IProject) input.getAdapter(IProject.class);
+
 			if (project == null) {
 				IResource resource = (IResource) input.getAdapter(IResource.class);
+
 				if (resource != null) {
-					project = resource.getProject();
-					String path = project.getLocation().toOSString();
-					this.gitRepository = new GitRepository(path);
-					this.refresh.run();
+					this.project = resource.getProject();
 				}
+
 			}
+
 		}
+
+		if (this.project != null) {
+			this.isActive = true;
+			this.refreshAction.run();
+		}
+
+		else {
+			this.isActive = false;
+		}
+
 	}
 
 	@Override
@@ -97,7 +146,7 @@ public abstract class SGitView extends ViewPart implements ISelectionListener {
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 
 		if (!selection.isEmpty() && selection instanceof IStructuredSelection) {
-			this.onProjectTreeItemSelection();
+			this.onProjectTreeItemSelection((IStructuredSelection) selection);
 		}
 
 		else {
