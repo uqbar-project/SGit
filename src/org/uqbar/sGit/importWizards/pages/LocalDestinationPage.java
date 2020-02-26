@@ -35,14 +35,14 @@ import org.uqbar.sGit.exceptions.NoConnectionWithRemoteException;
 import org.uqbar.sGit.exceptions.NotAuthorizedException;
 import org.uqbar.sGit.exceptions.ProjectAlreadyExistsException;
 import org.uqbar.sGit.utils.SecureStore;
-import org.uqbar.sGit.utils.git.GitRepository;
+import org.uqbar.sGit.utils.git.GitRepositoryUtils;
 import org.uqbar.sGit.utils.git.SecureStoredUserPasswordCredentials;
 import org.uqbar.sGit.utils.git.UserPasswordCredentials;
 import org.uqbar.sGit.views.Dialogs;
 
 public class LocalDestinationPage extends SGitWizardPage {
 
-	private GitRepository gitRepository;
+	private GitRepositoryUtils gitRepository;
 	private Dialogs view = new Dialogs();
 	private String repositoryName = "project"; //$NON-NLS-1$
 	private Composite destinationComposite;
@@ -365,7 +365,7 @@ public class LocalDestinationPage extends SGitWizardPage {
 
 	@Override
 	protected void onPageShow() {
-		gitRepository = new GitRepository();
+		gitRepository = new GitRepositoryUtils();
 		repositoryName = gitRepository.getRepositoryName(this.getUri());
 		this.updateDescriptionWithReposityName();
 		this.setAllCompositeEnabled(true);
