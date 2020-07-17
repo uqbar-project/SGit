@@ -1,62 +1,36 @@
 package org.uqbar.sGit.views;
 
-import static org.eclipse.swt.SWT.BORDER;
-import static org.eclipse.swt.SWT.DROP_DOWN;
-import static org.eclipse.swt.SWT.HORIZONTAL;
-import static org.eclipse.swt.SWT.H_SCROLL;
-import static org.eclipse.swt.SWT.MULTI;
-import static org.eclipse.swt.SWT.NULL;
-import static org.eclipse.swt.SWT.PUSH;
-import static org.eclipse.swt.SWT.RIGHT_TO_LEFT;
-import static org.eclipse.swt.SWT.SEPARATOR_FILL;
-import static org.eclipse.swt.SWT.VERTICAL;
-import static org.eclipse.swt.SWT.V_SCROLL;
-import static org.eclipse.swt.SWT.WRAP;
-import static org.eclipse.swt.layout.GridData.FILL_BOTH;
-import static org.eclipse.swt.layout.GridData.FILL_HORIZONTAL;
-import static org.eclipse.swt.layout.GridData.HORIZONTAL_ALIGN_FILL;
-import static org.uqbar.sGit.views.Messages.AUTHOR;
-import static org.uqbar.sGit.views.Messages.COMMIT_ACTION;
-import static org.uqbar.sGit.views.Messages.COMMIT_AND_PUSH_ACTION;
-import static org.uqbar.sGit.views.Messages.COMMIT_MESSAGE;
-import static org.uqbar.sGit.views.Messages.PULL_ACTION;
-import static org.uqbar.sGit.views.Messages.PUSH_ACTION;
-import static org.uqbar.sGit.views.Messages.STAGED_CHANGES;
-import static org.uqbar.sGit.views.Messages.UNSTAGED_CHANGES;
+import static org.eclipse.swt.SWT.*;
+import static org.eclipse.swt.layout.GridData.*;
+import static org.uqbar.sGit.views.Messages.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
-import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
 import org.uqbar.sGit.utils.FileLocator;
 import org.uqbar.sGit.utils.git.GitFile;
 import org.uqbar.sGit.views.Dialogs.NewAuthorDialog;
 
-public class SGitView extends View implements ModifyListener {
+public class SGitView extends View {
 
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "org.uqbar.sGit.views.GitView"; //$NON-NLS-1$
 
+	private Label tipLabel;
+	private Label projectLabel;
 	private Label unstagingFilesLabel;
 	private Label stagingFilesLabel;
 	private Table unstagedFiles;
@@ -186,15 +160,16 @@ public class SGitView extends View implements ModifyListener {
 
 	public void onViewInit() {
 		final SGitView that = this;
+		
 		final SashForm gitStagingSashForm = new SashForm(container, HORIZONTAL);
 		final SashForm addRemoveSashForm = new SashForm(gitStagingSashForm, VERTICAL);
 
-		final Composite unstagingComposite = new Composite(addRemoveSashForm, NULL);
+		final Composite unstagingComposite = new Composite(addRemoveSashForm, PUSH);
 		final GridLayout unstagingCompositeLayout = new GridLayout();
 		unstagingComposite.setLayout(unstagingCompositeLayout);
 		unstagingComposite.setLayoutData(new GridData(FILL_HORIZONTAL));
-
-		final Composite unstagingToolbarComposite = new Composite(unstagingComposite, NULL);
+		
+		final Composite unstagingToolbarComposite = new Composite(unstagingComposite, PUSH);
 		final GridLayout unstagingToolbarCompositeCompositeLayout = new GridLayout();
 		unstagingToolbarCompositeCompositeLayout.numColumns = 2;
 		unstagingToolbarComposite.setLayout(unstagingToolbarCompositeCompositeLayout);
@@ -216,7 +191,7 @@ public class SGitView extends View implements ModifyListener {
 				if (unstagedFiles.getSelectionIndex() >= 0) {
 					Arrays.asList(unstagedFiles.getSelection()).stream().forEach(item -> that.stage(item.getText()));
 					that.updateStagingState();
-					that.enableCommitIfCanMakeACommit();
+					that.updateComponentsState();
 				}
 			}
 
@@ -235,7 +210,7 @@ public class SGitView extends View implements ModifyListener {
 			public void widgetSelected(SelectionEvent e) {
 				that.stageAll();
 				that.updateStagingState();
-				that.enableCommitIfCanMakeACommit();
+				that.updateComponentsState();
 			}
 
 			@Override
@@ -248,12 +223,12 @@ public class SGitView extends View implements ModifyListener {
 		unstagedFiles = new Table(unstagingComposite, PUSH | MULTI | BORDER | H_SCROLL | V_SCROLL | WRAP);
 		unstagedFiles.setLayoutData(new GridData(FILL_BOTH));
 
-		Composite stagingComposite = new Composite(addRemoveSashForm, NULL);
+		Composite stagingComposite = new Composite(addRemoveSashForm, PUSH);
 		final GridLayout stagingCompositeLayout = new GridLayout();
 		stagingComposite.setLayout(stagingCompositeLayout);
 		stagingComposite.setLayoutData(new GridData(FILL_HORIZONTAL));
-
-		Composite stagingToolbarComposite = new Composite(stagingComposite, NULL);
+		
+		Composite stagingToolbarComposite = new Composite(stagingComposite, PUSH);
 		final GridLayout stagingToolbarCompositeCompositeLayout = new GridLayout();
 		stagingToolbarCompositeCompositeLayout.numColumns = 2;
 		stagingToolbarComposite.setLayout(stagingToolbarCompositeCompositeLayout);
@@ -275,7 +250,7 @@ public class SGitView extends View implements ModifyListener {
 				if (stagedFiles.getSelectionIndex() >= 0) {
 					Arrays.asList(stagedFiles.getSelection()).stream().forEach(item -> that.unstage(item.getText()));
 					that.updateStagingState();
-					that.enableCommitIfCanMakeACommit();
+					that.updateComponentsState();
 				}
 			}
 
@@ -294,7 +269,7 @@ public class SGitView extends View implements ModifyListener {
 			public void widgetSelected(SelectionEvent e) {
 				that.unstageAll();
 				that.updateStagingState();
-				that.enableCommitIfCanMakeACommit();
+				that.updateComponentsState();
 			}
 
 			@Override
@@ -309,19 +284,31 @@ public class SGitView extends View implements ModifyListener {
 
 		// Committer Section.
 
-		final Composite commiterContainer = new Composite(gitStagingSashForm, BORDER | VERTICAL);
+		final Composite commiterContainer = new Composite(gitStagingSashForm, VERTICAL);
 		final GridLayout commiterlayout = new GridLayout();
 		commiterContainer.setLayout(commiterlayout);
+		
+		projectLabel = new Label(commiterContainer, PUSH);
+		projectLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
+		projectLabel.setText("");
 
-		final Label commitLabel = new Label(commiterContainer, NULL);
+		
+		final Label commitLabel = new Label(commiterContainer, PUSH);
 		commitLabel.setText(COMMIT_MESSAGE);
 		commitLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
 
 		commitMessageTexbox = new Text(commiterContainer, BORDER | H_SCROLL | V_SCROLL | WRAP);
 		commitMessageTexbox.setLayoutData(new GridData(FILL_BOTH));
-		commitMessageTexbox.addModifyListener(this);
+		commitMessageTexbox.addModifyListener(new ModifyListener() {
+			
+			@Override
+			public void modifyText(ModifyEvent e) {
+				that.updateComponentsState();
+			}
+			
+		});
 
-		final Label authorLabel = new Label(commiterContainer, NULL);
+		final Label authorLabel = new Label(commiterContainer, PUSH);
 		authorLabel.setText(AUTHOR);
 		authorLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
 
@@ -335,12 +322,16 @@ public class SGitView extends View implements ModifyListener {
 			
 			@Override
 			public void modifyText(ModifyEvent e) {
-				that.enableCommitIfCanMakeACommit();
-				
+				that.updateComponentsState();
 			}
+			
 		});
+		
+		tipLabel = new Label(commiterContainer, PUSH | WRAP);
+		tipLabel.setText("");
+		tipLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
 
-		Composite commiterButtonsComposite = new Composite(commiterContainer, RIGHT_TO_LEFT);
+		final Composite commiterButtonsComposite = new Composite(commiterContainer, RIGHT_TO_LEFT | WRAP);
 		final GridLayout commiterButtonsCompositeLayout = new GridLayout();
 		commiterButtonsCompositeLayout.numColumns = 4;
 		commiterButtonsComposite.setLayout(commiterButtonsCompositeLayout);
@@ -469,6 +460,37 @@ public class SGitView extends View implements ModifyListener {
 	protected void updateView() {
 		this.updateStagingState();
 		this.updateCommitDetailsState();
+		
+		if (this.isActive && this.getProject() != null) {
+			try {
+				String uri = this.getProject().getLocation().toOSString();
+				Git git = Git.wrap(new FileRepositoryBuilder().setGitDir(new File(uri + "/.git")).build()); //$NON-NLS-1
+			
+				if (git.getRepository().getBranch() != null) {
+					projectLabel.setText(PROJECT_LABEL + " " + this.getProject().getName() + " [" + git.getRepository().getBranch() + "]"); //$NON-NLS-2 //$NON-NLS-3 //$NON-NLS-4
+					this.enableStagingArea();
+					this.enablePullButton();
+					this.enablePushButton();
+					this.updateComponentsState();
+				}
+				
+				else {
+					this.clear();
+					projectLabel.setText(NOT_A_GIT_REPOSITORY_FOUND_LABEL + " " + this.getProject().getName());
+					this.disableAll();
+				}
+				
+			}
+
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		else {
+			this.clear();
+			this.disableAll();
+		}
 	}
 
 	private void disableCommitButton() {
@@ -521,18 +543,69 @@ public class SGitView extends View implements ModifyListener {
 		this.commitMessageTexbox.setEnabled(false);
 		this.authorCombo.setEnabled(false);
 	}
+	
+	private boolean hasAddedChanges() {
+		return stagedFiles.getItemCount() > 0;
+	}
+	
+	private void enableCommitMessageTextboxtIfHasAddedChanges() {
+		if (this.hasAddedChanges()) {
+			this.commitMessageTexbox.setEnabled(true);
+			tipLabel.setText(TIP_LABEL_CAN_WRITE_A_COMMIT_MESSAGE);
+		}
 
-	private void enableCommitterArea() {
-		this.commitMessageTexbox.setEnabled(true);
-		this.authorCombo.setEnabled(true);
+		else {
+			try {
+				this.commitMessageTexbox.setEnabled(false);
+				String uri = this.getProject().getLocation().toOSString();
+				
+				Git git = Git.wrap(new FileRepositoryBuilder().setGitDir(new File(uri + "/.git")).build()); // $NON-NLS-1
+				if (git.getRepository().getBranch() != null) {
+					tipLabel.setText(TIP_LABEL_NEED_ADD_CHANGES);
+				}
+				
+				else {
+					tipLabel.setText(TIP_LABEL_NOT_A_GIT_REPOSITORY);
+				}
+			} 
+			
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+	}
+	
+	private boolean hasCommitMessageWrited() {
+		return commitMessageTexbox.getText().length() > 0;
+	}
+	
+	private boolean canSelectAAuthor() {
+		return this.hasAddedChanges() && this.hasCommitMessageWrited();
+	}
+	
+	private void enableAuthorSelectionComboIfCanSelectAAuthor() {
+		if (this.canSelectAAuthor()) {
+			authorCombo.setEnabled(true);
+			tipLabel.setText(TIP_LABEL_CAN_SELECT_AUTHOR);
+		}
+
+		else {
+			authorCombo.setEnabled(false);
+		}
+	}
+
+	private boolean hasAAuthorSelected() {
+		return !authorCombo.getText().isEmpty();
 	}
 
 	private boolean canMakeACommit() {
-		return !this.authorCombo.getText().isEmpty() && this.stagedFiles.getItemCount() > 0 && this.commitMessageTexbox.getText().length() > 0;
+		return this.hasAddedChanges() && this.hasCommitMessageWrited() && this.hasAAuthorSelected();
 	}
 
 	private void enableCommitIfCanMakeACommit() {
 		if (this.canMakeACommit()) {
+			tipLabel.setText(TIP_LABEL_CAN_COMMIT);
 			this.enableCommitButton();
 			this.enableCommitAndPushButton();
 		}
@@ -542,6 +615,31 @@ public class SGitView extends View implements ModifyListener {
 			this.disableCommitAndPushButton();
 		}
 	}
+	
+	private void updateComponentsState() {
+		this.enableCommitMessageTextboxtIfHasAddedChanges();
+		this.enableAuthorSelectionComboIfCanSelectAAuthor();
+		this.enableCommitIfCanMakeACommit();
+		this.view.refreshWorkspace();
+	}
+	
+	private void disableAll() {
+		this.disableStagingArea();
+		this.disableCommitterArea();
+		this.disablePullButton();
+		this.disablePushButton();
+	}
+	
+	private void clear() {
+		projectLabel.setText(""); //$NON-NLS-1
+		tipLabel.setText(""); //$NON-NLS-1
+		unstagedFiles.removeAll();
+		stagedFiles.removeAll();
+		unstagingFilesLabel.setText(UNSTAGED_CHANGES + 0);
+		stagingFilesLabel.setText(STAGED_CHANGES + 0);
+		commitMessageTexbox.setText(""); //$NON-NLS-1
+		authorCombo.clearSelection();
+	}
 
 	@Override
 	protected void onFocus() {
@@ -550,25 +648,7 @@ public class SGitView extends View implements ModifyListener {
 
 	@Override
 	protected void onUpdate() {
-		if (this.isActive) {
-			this.updateView();
-			this.enableStagingArea();
-			this.enableCommitterArea();
-			this.enablePullButton();
-			this.enablePushButton();
-		}
-
-		else {
-			this.disableStagingArea();
-			this.disableCommitterArea();
-			this.disablePullButton();
-			this.disablePushButton();
-		}
-	}
-
-	@Override
-	public void modifyText(ModifyEvent e) {
-		this.enableCommitIfCanMakeACommit();
+		this.updateView();
 	}
 
 }

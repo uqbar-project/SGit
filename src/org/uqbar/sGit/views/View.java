@@ -14,15 +14,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
 import org.uqbar.sGit.utils.WorkspaceHelper;
-import org.uqbar.sGit.views.actions.StageFileAction;
-import org.uqbar.sGit.views.actions.CommitAction;
-import org.uqbar.sGit.views.actions.PersonIdentConsumerAction;
-import org.uqbar.sGit.views.actions.PullAction;
-import org.uqbar.sGit.views.actions.PushAction;
-import org.uqbar.sGit.views.actions.RefreshAction;
-import org.uqbar.sGit.views.actions.UnstageFileAction;
-import org.uqbar.sGit.views.actions.StagingFileConsumerAction;
-import org.uqbar.sGit.views.actions.UnstagingFileConsumerAction;
+import org.uqbar.sGit.views.actions.*;
 
 public abstract class View extends ViewPart implements ISelectionListener {
 

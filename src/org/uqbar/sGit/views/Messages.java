@@ -4,6 +4,13 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.uqbar.sGit.views.messages"; //$NON-NLS-1$
+	public static String NOT_A_GIT_REPOSITORY_FOUND_LABEL;
+	public static String PROJECT_LABEL;
+	public static String TIP_LABEL_NOT_A_GIT_REPOSITORY;
+	public static String TIP_LABEL_NEED_ADD_CHANGES;
+	public static String TIP_LABEL_CAN_WRITE_A_COMMIT_MESSAGE;
+	public static String TIP_LABEL_CAN_SELECT_AUTHOR;
+	public static String TIP_LABEL_CAN_COMMIT;
 	public static String UNSTAGED_CHANGES;
 	public static String UPDATE_MESSAGE;
 	public static String UPDATE_TOOLTIP;
