@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.uqbar.sGit.utils.Clipboard;
+import org.uqbar.sGit.utils.git.GitUrlChecker;
 
 public class SourceGitRepositoryPage extends SGitWizardPage {
 
@@ -43,10 +45,6 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 		return !this.getUsername().isEmpty() && !this.getPassword().isEmpty();
 	}
 
-	public Boolean hasValidGitURIFormat(String path) {
-		return path.startsWith("https://") && path.endsWith(".git"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
 	private void createLocationComposite(Composite parent) {
 		final Composite container = new Composite(parent, NULL);
 		final GridLayout location = new GridLayout();
@@ -134,7 +132,7 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 
 	@Override
 	protected void generateMessageErrors() {
-		if (!this.getUri().isEmpty() && !this.hasValidGitURIFormat(this.getUri())) {
+		if (!this.getUri().isEmpty() && !GitUrlChecker.isValidGitUrl(this.getUri())) {
 			this.addMessageError(Messages.ERROR_ENTER_VALID_GIT_URI);
 		}
 
@@ -164,9 +162,8 @@ public class SourceGitRepositoryPage extends SGitWizardPage {
 
 	@Override
 	protected void onPageShow() {
-		if (hasValidGitURIFormat(this.getClipboardContentText())) {
-			uri.setText(this.getClipboardContentText());
-		}
+		String clipboardContent = Clipboard.getContent();
+		uri.setText(GitUrlChecker.isValidGitUrl(clipboardContent) ? clipboardContent : "");
 	}
 
 	@Override

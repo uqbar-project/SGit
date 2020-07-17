@@ -7,6 +7,10 @@ public class Messages extends NLS {
 	public static String MergeConflictsExceptionMessage;
 	public static String NoConnectionWithRemoteExceptionMessage;
 	public static String NotAuthorizedExceptionMessage;
+	public static String FailedToReadProjectDescriptionFileExceptiond_0;
+	public static String FailedToReadProjectDescriptionFileExceptiond_1;
+	public static String ProjectAlreadyExistsException_0;
+	public static String ProjectAlreadyExistsException_1;
 	public static String RefreshProjectTroubleExceptionMessage;
 	static {
 		// initialize resource bundle

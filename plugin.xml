@@ -5,12 +5,12 @@
    <extension point="org.eclipse.ui.importWizards">
       <wizard
             id="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
-            name="Importar proyecto Git"
+            name="%IMPORT_GIT_PROJECT_WIZARD_NAME"
             class="org.uqbar.sGit.importWizards.ImportProjectFromGitRepositoryWizard"
             category="org.eclipse.egit.ui.internal.clone.gitclonecategory"
             icon="icons/repo_rep.png">
          <description>
-         	Import one or more projects from a Git Repository.
+         	%IMPORT_GIT_PROJECT_WIZARD_DESCRIPTION
          </description>
       </wizard>
    </extension>
@@ -23,19 +23,11 @@
       </category>
       <view
             category="org.uqbar.SGit"
-            class="org.uqbar.sGit.views.GitView"
+            class="org.uqbar.sGit.views.SGitView"
             icon="icons/staging.png"
             id="org.uqbar.sGit.views.GitView"
-            inject="true"
-            name="Git">
+            name="%SGIT_NAME">
       </view>
-   </extension>
-
-   <extension
-         point="org.eclipse.help.contexts">
-      <contexts
-            file="contexts.xml">
-      </contexts>
    </extension>
    
 </plugin>

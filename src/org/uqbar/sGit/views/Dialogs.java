@@ -1,10 +1,7 @@
 package org.uqbar.sGit.views;
 
-import static org.eclipse.swt.SWT.BORDER;
-import static org.eclipse.swt.SWT.PUSH;
-import static org.eclipse.swt.SWT.SINGLE;
-import static org.eclipse.swt.layout.GridData.FILL_HORIZONTAL;
-import static org.eclipse.swt.layout.GridData.HORIZONTAL_ALIGN_FILL;
+import static org.eclipse.swt.SWT.*;
+import static org.eclipse.swt.layout.GridData.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,11 +14,7 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 import org.uqbar.sGit.exceptions.RefreshProjectTroubleException;
 
 public class Dialogs {
