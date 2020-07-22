@@ -10,9 +10,9 @@ In order to collaborate, first of all you need to download the Eclipse plugin de
 
 SGit is available for both Eclipse and Wollok.
 
-* Eclipse >= Neon or Wollok >= v1.9.0.
+* Eclipse >= Neon
 * Wollok >= 1.9.0
-* Java development kit >= 8.
+* Java development kit >= 8
 
 ### Features
 
