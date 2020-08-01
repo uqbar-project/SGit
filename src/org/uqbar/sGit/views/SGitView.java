@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -327,9 +328,10 @@ public class SGitView extends View {
 			
 		});
 		
-		tipLabel = new Label(commiterContainer, PUSH | WRAP);
+		final GridData tipLabelLayoutData = GridDataFactory.fillDefaults().grab(true, true).hint(FILL_HORIZONTAL, 80).create();
+		tipLabel = new Label(commiterContainer, PUSH | FILL_HORIZONTAL | WRAP);
 		tipLabel.setText("");
-		tipLabel.setLayoutData(new GridData(FILL_HORIZONTAL));
+		tipLabel.setLayoutData(tipLabelLayoutData);
 
 		final Composite commiterButtonsComposite = new Composite(commiterContainer, RIGHT_TO_LEFT | WRAP);
 		final GridLayout commiterButtonsCompositeLayout = new GridLayout();
@@ -338,7 +340,7 @@ public class SGitView extends View {
 		commiterButtonsComposite.setLayoutData(new GridData(FILL_HORIZONTAL));
 
 		commitAndPush = new Button(commiterButtonsComposite, PUSH);
-		commitAndPush.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL));
+		commitAndPush.setLayoutData(new GridData(HORIZONTAL_ALIGN_FILL | WRAP));
 		commitAndPush.setText(COMMIT_AND_PUSH_ACTION);
 		commitAndPush.setImage(FileLocator.getImage("commitandpush", this)); //$NON-NLS-1$
 		commitAndPush.addSelectionListener(new SelectionListener() {
