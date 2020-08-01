@@ -4,9 +4,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.uqbar</groupId>
 	<artifactId>SGit</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>SGit</name>
-	<description>A simplified but elegant Eclipse GIT plugin</description>
+	<description>An Eclipse Para Git plugin for educational purposes</description>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
