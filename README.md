@@ -44,7 +44,7 @@ There are many ways in which you can participate in the project, for example:
 
 ## License
 
-Licensed under the [GNU General Public License v3.0](https://github.com/uqbar-project/SGit/blob/developer/LICENSE) license.
+Licensed under the [GNU General Public License v3.0](https://github.com/uqbar-project/SGit/blob/master/LICENSE) license.
   
 ## Authors
 
