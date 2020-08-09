@@ -1,4 +1,4 @@
-![SGit](https://github.com/uqbar-project/SGit/blob/developer/icons/logo.png)
+![SGit](https://github.com/uqbar-project/SGit/blob/master/icons/logo.png)
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/uqbar-project/SGit.svg/issues)
 
